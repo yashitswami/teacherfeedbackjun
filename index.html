@@ -44,8 +44,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   border-left-color:var(--accent);font-weight:600}
 
 /* ── Main ── */
-.main{flex:1;overflow:hidden}
-.page{display:none;padding:26px 30px 42px;max-width:1160px}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;min-width:0}
+.page{display:none;padding:26px 30px 42px;max-width:1160px;overflow-x:auto}
 .page.active{display:block}
 
 /* ── Page header ── */
@@ -72,10 +72,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .kcard.ac .kv{color:var(--accent)}
 
 /* ── Grid ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
-.g1{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:20px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;min-width:0}
+.g1{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:20px;min-width:0}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px}
-.card{background:var(--surface);border-radius:var(--r);padding:18px;box-shadow:var(--sh)}
+.card{background:var(--surface);border-radius:var(--r);padding:18px;box-shadow:var(--sh);overflow:visible;min-width:0}
 .ct{font-size:.74rem;font-weight:700;color:var(--brand);text-transform:uppercase;
   letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;gap:7px}
 .badge{background:var(--brand);color:#fff;border-radius:4px;
@@ -89,8 +89,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   background:var(--accent);border-radius:2px}
 
 /* ── Heatmap ── */
-.hw{overflow-x:auto}
-.ht{border-collapse:collapse;width:100%;font-size:.72rem}
+.hw{overflow-x:auto;overflow-y:visible;display:block;width:100%}
+.ht{border-collapse:collapse;width:max-content;min-width:100%;font-size:.72rem}
 .ht th{padding:4px 7px;font-weight:600;font-size:.65rem;color:var(--muted);white-space:nowrap}
 .ht th.rh{text-align:left;min-width:160px;position:sticky;left:0;background:var(--surface)}
 .ht th.ch{writing-mode:vertical-rl;transform:rotate(180deg);
@@ -105,7 +105,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .rp{background:var(--poor);color:#fff} .rx{background:#eee;color:#aaa}
 
 /* ── School consolidation table ── */
-.sc-table{border-collapse:collapse;width:100%;font-size:.78rem}
+.sc-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:.78rem}
 .sc-table thead tr th{padding:8px 10px;font-size:.68rem;font-weight:700;
   color:#fff;background:var(--brand);white-space:nowrap;
   position:sticky;top:0;z-index:2}
@@ -127,8 +127,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   font-size:.65rem;font-weight:700;color:#fff;margin-right:3px}
 .grade-pill.g11{background:var(--g11)} .grade-pill.g12{background:var(--g12)}
 .grade-pill.all{background:#666}
-.sc-wrap{overflow-x:auto;max-height:600px;overflow-y:auto;border-radius:8px;
-  border:1px solid var(--border)}
+.sc-wrap{overflow-x:auto;overflow-y:auto;max-height:620px;border-radius:8px;border:1px solid var(--border);display:block;width:100%}
 
 /* ── School rating bar (mini inline bar) ── */
 .mini-bar-wrap{display:flex;align-items:center;gap:6px;min-width:120px}
