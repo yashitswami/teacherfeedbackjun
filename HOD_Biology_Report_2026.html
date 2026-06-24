@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Biology — Teacher Feedback Report 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --brand:#bf360c;--brand2:#bf360c;--accent:#f0c040;
+  --g11:#1a3a6c;--g12:#e8a317;
+  --bg:#f5f6fa;--surface:#fff;--border:#e2e6f0;
+  --text:#1a1f2e;--muted:#6b7280;
+  --exc:#2e7d32;--good:#7cb342;--avg:#fbc02d;--nw:#ef6c00;--poor:#c62828;
+  --r:10px;--sh:0 2px 14px rgba(0,0,0,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.18);border-radius:3px}
+
+/* Shell */
+.shell{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:236px;min-width:236px;background:var(--brand);position:sticky;top:0;
+  height:100vh;overflow-y:auto;display:flex;flex-direction:column;
+  box-shadow:3px 0 20px rgba(0,0,0,.18);z-index:100;flex-shrink:0}
+.sb-top{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-hod{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:2px}
+.sb-title{font-size:1.05rem;font-weight:800;color:#fff;line-height:1.25}
+.sb-sub{font-size:.68rem;color:rgba(255,255,255,.45);margin-top:3px}
+.ng{font-size:.58rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(255,255,255,.3);padding:12px 16px 3px}
+.ni{display:block;padding:7px 16px 7px 20px;color:rgba(255,255,255,.7);
+  text-decoration:none;font-size:.79rem;cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;border-left:3px solid transparent;
+  transition:background .12s,border-color .12s,color .12s}
+.ni:hover{background:rgba(255,255,255,.07);color:#fff}
+.ni.active{background:rgba(240,192,64,.14);color:var(--accent);
+  border-left-color:var(--accent);font-weight:700}
+.ni-sub{font-size:.68rem;color:rgba(255,255,255,.38);margin-left:4px}
+
+/* Main */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;min-width:0}
+.page{display:none;padding:26px 28px 44px;max-width:1140px}
+.page.active{display:block}
+
+/* Page header */
+.ph{margin-bottom:20px}
+.ph .ey{font-size:.67rem;font-weight:700;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.ph h1{font-size:1.6rem;font-weight:800;color:var(--brand);line-height:1.2}
+.ph .sub{font-size:.84rem;color:var(--muted);margin-top:3px}
+.divider{height:2px;background:linear-gradient(90deg,var(--brand),transparent);
+  margin:0 0 20px;border-radius:2px}
+
+/* KPI cards */
+.krow{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+  gap:12px;margin-bottom:22px}
+.kcard{background:var(--surface);border-radius:var(--r);padding:14px 15px;
+  box-shadow:var(--sh);border-top:3px solid var(--brand)}
+.kcard.ac{border-top-color:var(--accent)} .kcard.g11{border-top-color:var(--g11)}
+.kcard.g12{border-top-color:var(--g12)}
+.kcard .kl{font-size:.66rem;color:var(--muted);font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase}
+.kcard .kv{font-size:1.5rem;font-weight:800;color:var(--brand);
+  line-height:1.15;margin-top:2px}
+.kcard.ac .kv{color:var(--brand)} .kcard.g11 .kv{color:var(--g11)}
+.kcard.g12 .kv{color:var(--g12)}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;min-width:0}
+.g1{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:18px;min-width:0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:18px;min-width:0}
+
+/* Card */
+.card{background:var(--surface);border-radius:var(--r);padding:16px 18px;
+  box-shadow:var(--sh);overflow:visible;min-width:0}
+.ct{font-size:.72rem;font-weight:700;color:var(--brand);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.badge{background:var(--brand);color:#fff;border-radius:4px;
+  font-size:.58rem;padding:2px 6px;font-weight:700}
+.badge.g11{background:var(--g11)} .badge.g12{background:var(--g12)}
+.badge.subj{background:rgba(0,0,0,.12);color:var(--brand)}
+
+/* Section title */
+.st{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--brand);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.st::before{content:'';display:inline-block;width:3px;height:13px;
+  background:var(--accent);border-radius:2px}
+
+/* Heatmap */
+.hw{overflow-x:auto;display:block;width:100%}
+.ht{border-collapse:collapse;width:max-content;min-width:100%;font-size:.72rem}
+.ht th{padding:4px 7px;font-weight:600;font-size:.64rem;color:var(--muted);white-space:nowrap}
+.ht th.rh{text-align:left;min-width:155px;position:sticky;left:0;background:var(--surface)}
+.ht th.ch{writing-mode:vertical-rl;transform:rotate(180deg);
+  max-width:26px;padding:7px 3px;text-align:left}
+.ht td{padding:6px 5px;text-align:center;font-weight:700;font-size:.74rem;white-space:nowrap}
+.ht td:first-child{text-align:left;font-weight:500;font-size:.72rem;padding-left:0;
+  white-space:nowrap;position:sticky;left:0;background:var(--surface)}
+.ht tr:hover td{opacity:.82}
+.re{background:var(--exc);color:#fff} .rg{background:var(--good);color:#fff}
+.ra{background:var(--avg);color:#333} .rn{background:var(--nw);color:#fff}
+.rp{background:var(--poor);color:#fff} .rx{background:#eee;color:#aaa}
+
+/* School consolidation table */
+.sc-wrap{overflow-x:auto;overflow-y:auto;max-height:580px;border-radius:8px;
+  border:1px solid var(--border);display:block;width:100%}
+.sc-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:.76rem}
+.sc-table thead th{padding:7px 9px;font-size:.66rem;font-weight:700;
+  color:#fff;background:var(--brand);white-space:nowrap;position:sticky;top:0;z-index:2}
+.sc-table td{padding:6px 9px;border-bottom:1px solid var(--border);
+  white-space:nowrap;vertical-align:middle}
+.sc-table td.cc{font-weight:600;color:var(--brand);background:#f8f9fd;
+  min-width:155px;position:sticky;left:0;z-index:1;border-right:1px solid var(--border)}
+.sc-table tr.cr td{background:#fff}
+.sc-table tr.g11r td{background:#f5f7fc}
+.sc-table tr.g12r td{background:#fffbf0}
+.rval{font-weight:700;border-radius:4px;padding:2px 5px;
+  display:inline-block;min-width:36px;text-align:center;font-size:.76rem}
+.nc{color:var(--muted);font-size:.7rem}
+.gp{display:inline-block;padding:2px 7px;border-radius:10px;
+  font-size:.63rem;font-weight:700;color:#fff}
+.gp.g11{background:var(--g11)} .gp.g12{background:var(--g12)} .gp.all{background:#777}
+
+/* Mini bar */
+.mbw{display:flex;align-items:center;gap:5px;min-width:110px}
+.mbt{flex:1;height:6px;background:#eee;border-radius:4px;overflow:hidden}
+.mbf{height:100%;border-radius:4px;transition:width .3s}
+
+/* Chart wrap */
+.cw{position:relative;width:100%}
+
+/* Legend */
+.leg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.li{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted)}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* KPI mini */
+.kmrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;margin-bottom:18px}
+.km{background:var(--surface);border-radius:8px;padding:10px 13px;
+  box-shadow:var(--sh);border-left:4px solid var(--brand)}
+.km.ac{border-left-color:var(--accent)} .km.g11{border-left-color:var(--g11)}
+.km.g12{border-left-color:var(--g12)} .km.gd{border-left-color:var(--exc)}
+.km.bd{border-left-color:var(--poor)}
+.km .ml{font-size:.63rem;color:var(--muted);text-transform:uppercase;
+  font-weight:700;letter-spacing:.07em}
+.km .mv{font-size:1.0rem;font-weight:800;color:var(--brand);margin-top:2px}
+.km.gd .mv{color:var(--exc)} .km.bd .mv{color:var(--poor)}
+.km.g11 .mv{color:var(--g11)} .km.g12 .mv{color:var(--g12)}
+.km.ac .mv{color:var(--brand)}
+
+/* Meta chips */
+.mchips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:var(--bg);border:1px solid var(--border);border-radius:20px;
+  padding:3px 11px;font-size:.72rem;color:var(--brand);font-weight:600}
+.chip.subj{background:#fff3e0;border-color:var(--brand)}
+
+/* Filter bar */
+.fb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  background:var(--surface);border-radius:var(--r);padding:10px 14px;
+  margin-bottom:16px;box-shadow:var(--sh)}
+.fb label{font-size:.72rem;color:var(--muted);font-weight:600}
+.fb select,.fb input{padding:5px 9px;border:1px solid var(--border);
+  border-radius:6px;font-size:.78rem;color:var(--text);background:var(--bg);outline:none}
+.fb select:focus,.fb input:focus{border-color:var(--brand)}
+.fb .sp{flex:1}
+
+/* Teacher list */
+.tlist{display:flex;flex-direction:column;gap:7px}
+.tc{background:var(--surface);border-radius:8px;padding:12px 15px;
+  box-shadow:var(--sh);cursor:pointer;border-left:4px solid transparent;
+  display:flex;align-items:center;gap:12px;
+  transition:border-color .13s,box-shadow .13s}
+.tc:hover{border-left-color:var(--brand);box-shadow:0 4px 18px rgba(0,0,0,.12)}
+.tc .tcn{font-weight:700;font-size:.88rem;color:var(--brand);flex:1}
+.tc .tcs{font-size:.7rem;color:var(--muted)}
+.tc .tcb{font-size:.76rem;font-weight:700;padding:3px 9px;
+  border-radius:12px;white-space:nowrap}
+
+/* Tabs */
+.tabs{display:flex;gap:0;margin-bottom:13px;border-bottom:2px solid var(--border)}
+.tab{padding:6px 15px;font-size:.79rem;font-weight:600;cursor:pointer;
+  border:none;background:none;color:var(--muted);
+  border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:color .12s,border-color .12s}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.tab.g11.active{color:var(--g11);border-bottom-color:var(--g11)}
+.tab.g12.active{color:var(--g12);border-bottom-color:var(--g12)}
+.tabp{display:none} .tabp.active{display:block}
+
+/* Subject pill */
+.subpill{display:inline-block;padding:2px 10px;border-radius:12px;
+  font-size:.7rem;font-weight:700;background:#fff3e0;
+  color:var(--brand);border:1px solid var(--brand);margin-right:4px}
+
+/* Comments */
+.cmlist{display:flex;flex-direction:column;gap:9px;max-height:460px;overflow-y:auto;padding-right:3px}
+.cmc{background:var(--bg);border-radius:8px;padding:11px 13px;
+  border-left:3px solid var(--border);transition:border-color .13s}
+.cmc:hover{border-left-color:var(--brand)}
+.cmc .cmm{display:flex;gap:7px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+.cmc .cmc-ctr{font-size:.7rem;font-weight:700;color:var(--brand)}
+.cmc .cmc-grade{font-size:.63rem;font-weight:700;color:#fff;padding:2px 7px;border-radius:10px}
+.cmc .cmc-grade.g11{background:var(--g11)} .cmc .cmc-grade.g12{background:var(--g12)}
+.cmc .cmc-subj{font-size:.63rem;font-weight:700;color:var(--brand);
+  background:#fff3e0;padding:2px 7px;border-radius:10px}
+.cmc .cmt{font-size:.82rem;color:var(--text);line-height:1.55}
+.no-cm{text-align:center;padding:24px;color:var(--muted);font-size:.82rem;font-style:italic}
+.cm-sum{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:12px}
+.cmsn{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:7px 12px;font-size:.73rem}
+.cmsn .csnn{font-size:1.05rem;font-weight:800;color:var(--brand)}
+.cmsn .csnl{color:var(--muted);font-size:.68rem}
+
+/* Cover */
+.cover{background:linear-gradient(135deg,#bf360c 0%,#d84315 60%,#e64a19 100%);
+  min-height:100vh;padding:44px 36px;display:flex;flex-direction:column;justify-content:space-between}
+.cov-acc{width:52px;height:5px;background:var(--accent);border-radius:3px;margin-bottom:24px}
+.cover h1{font-size:2.6rem;font-weight:800;color:#fff;line-height:1.1;max-width:480px}
+.cover h1 span{color:var(--accent)}
+.cov-sub{font-size:.95rem;color:rgba(255,255,255,.58);margin-top:9px;max-width:420px}
+.cov-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin-top:32px;max-width:560px}
+.cov-stat .csn{font-size:2rem;font-weight:800;color:var(--accent);line-height:1}
+.cov-stat .csl{font-size:.7rem;color:rgba(255,255,255,.52);margin-top:2px;
+  text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.cov-bot{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;
+  border-top:1px solid rgba(255,255,255,.12);padding-top:20px;margin-top:32px}
+.gbadge{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);
+  border-radius:7px;padding:8px 13px}
+.gbdot{width:11px;height:11px;border-radius:3px}
+.gbtext{color:#fff;font-size:.77rem;font-weight:600}
+.gbn{color:rgba(255,255,255,.48);font-size:.7rem;margin-left:3px}
+.rscale{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.rsl{font-size:.66rem;color:rgba(255,255,255,.42);margin-right:3px;
+  font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+.rsc{padding:3px 8px;border-radius:10px;font-size:.67rem;font-weight:700;color:#fff;white-space:nowrap}
+
+/* Subject blocks in teacher list / overview */
+.subj-block{margin-bottom:6px}
+.subj-header{font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--brand);padding:8px 0 6px;
+  border-bottom:1px solid var(--border);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px}
+
+/* Ranking table */
+.rank-table{border-collapse:collapse;width:100%}
+.rank-table th{padding:7px 10px;font-size:.67rem;font-weight:700;
+  color:#fff;background:var(--brand);white-space:nowrap;text-align:left}
+.rank-table td{padding:6px 10px;border-bottom:1px solid var(--border);
+  font-size:.8rem;vertical-align:middle}
+.rank-table td.tname{font-weight:700;color:var(--brand);cursor:pointer}
+.rank-table td.tname:hover{text-decoration:underline}
+.rank-table tr:hover td{background:#fafbff}
+.rank{font-weight:800;color:var(--muted);font-size:.75rem}
+
+@media(max-width:900px){.sidebar{width:190px;min-width:190px}.page{padding:14px}.g2{grid-template-columns:1fr}}
+@media(max-width:660px){.shell{flex-direction:column}.sidebar{width:100%;height:auto;position:relative}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-top">
+    <div class="sb-hod">HOD Report · Biology</div>
+    <div class="sb-title">🌿 Biology</div>
+    <div class="sb-sub">Teacher Feedback 2026</div>
+  </div>
+  <div class="ng">Overview</div>
+  <button class="ni active" onclick="showPage('cover')">🏠 Home</button>
+  <button class="ni" onclick="showPage('overview')">📊 Department Overview</button>
+  <button class="ni" onclick="showPage('grade')">🎓 Grade-wise Summary</button>
+  <button class="ni" onclick="showPage('all-teachers')">👩‍🏫 All Teachers</button>
+  <div class="ng">By Subject</div>
+  <button class="ni" onclick="showPage('subj-Botany')">🌿 Botany</button>
+<button class="ni" onclick="showPage('subj-Zoology')">🌿 Zoology</button>
+
+  <div class="ng">Botany</div><button class="ni" onclick="showT('Botany||Irshad Sir')"><span style="opacity:.6;font-size:.7rem">🌿</span> Irshad Sir</button>
+<button class="ni" onclick="showT('Botany||Anustubh Sir')"><span style="opacity:.6;font-size:.7rem">🌿</span> Anustubh Sir</button>
+<button class="ni" onclick="showT('Botany||Vicky Vaswani Sir')"><span style="opacity:.6;font-size:.7rem">🌿</span> Vicky Vaswani Sir</button>
+<div class="ng">Zoology</div><button class="ni" onclick="showT('Zoology||Diksha Ma\'am')"><span style="opacity:.6;font-size:.7rem">🌿</span> Diksha Ma'am</button>
+<button class="ni" onclick="showT('Zoology||Vicky Vaswani Sir')"><span style="opacity:.6;font-size:.7rem">🌿</span> Vicky Vaswani Sir</button>
+
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<div class="page active" id="page-cover">
+<div class="cover">
+  <div>
+    <div class="cov-acc"></div>
+    <h1>Biology<br><span>Department</span><br>Report</h1>
+    <p class="cov-sub">Teacher feedback analysis · AY 2026<br>
+      Prepared for Biology HOD</p>
+    <div class="cov-stats" id="cov-stats"></div>
+  </div>
+  <div class="cov-bot">
+    <div class="gbadge"><div class="gbdot" style="background:var(--g11)"></div>
+      <div class="gbtext">Grade 11th</div><div class="gbn" id="g11n"></div></div>
+    <div class="gbadge"><div class="gbdot" style="background:var(--g12)"></div>
+      <div class="gbtext">Grade 12th</div><div class="gbn" id="g12n"></div></div>
+    <div class="rscale">
+      <span class="rsl">Rating</span>
+      <span class="rsc" style="background:var(--exc)">≥4.5 Excellent</span>
+      <span class="rsc" style="background:var(--good)">4.0–4.5 Good</span>
+      <span class="rsc" style="background:var(--avg);color:#333">3.5–4.0 Average</span>
+      <span class="rsc" style="background:var(--nw)">3.0–3.5 Needs Work</span>
+      <span class="rsc" style="background:var(--poor)">＜3.0 Poor</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- DEPARTMENT OVERVIEW -->
+<div class="page" id="page-overview">
+  <div class="ph"><div class="ey">Department</div>
+    <h1>🌿 Biology — Overview</h1>
+    <div class="sub">All subjects: Botany · Zoology</div></div>
+  <div class="divider"></div>
+  <div class="krow" id="ov-kpis"></div>
+  <div class='g1'><div class='card'><div class='ct'>Subject Comparison</div><div class='cw' style='height:220px'><canvas id='ch-subj-comp'></canvas></div></div></div>
+  <div class="g1"><div class="card">
+    <div class="ct">Centre × Subject Heatmap</div>
+    <div class="hw" id="ov-hm"></div>
+  </div></div>
+  <div class="g1"><div class="card">
+    <div class="ct">Subject Rankings</div>
+    <div class="hw" id="ov-rank"></div>
+  </div></div>
+</div>
+
+<!-- GRADE SUMMARY -->
+<div class="page" id="page-grade">
+  <div class="ph"><div class="ey">Grade Breakdown</div>
+    <h1>Grade-wise Summary</h1>
+    <div class="sub">Grade 11th vs 12th performance across centres</div></div>
+  <div class="divider"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Grade 11th <span class="badge g11" id="g11-badge"></span></div>
+      <div class="hw" id="g11-hm"></div></div>
+    <div class="card">
+      <div class="ct">Grade 12th <span class="badge g12" id="g12-badge"></span></div>
+      <div class="hw" id="g12-hm"></div></div>
+  </div>
+  <div class="g1"><div class="card">
+    <div class="ct">Grade Average Comparison by Centre</div>
+    <div class="cw" style="height:260px"><canvas id="ch-grade-ctr"></canvas></div>
+  </div></div>
+</div>
+
+<!-- ALL TEACHERS -->
+<div class="page" id="page-all-teachers">
+  <div class="ph"><div class="ey">Directory</div>
+    <h1>All Biology Teachers</h1>
+    <div class="sub">Click any teacher to view full report with school-wise consolidation &amp; comments</div></div>
+  <div class="divider"></div>
+  <div class="fb">
+    <label>Subject</label><select id='f-subj' onchange='renderTL()'><option value=''>All</option><option value='Botany'>Botany</option><option value='Zoology'>Zoology</option></select>
+    <label>Grade</label>
+    <select id="f-grade" onchange="renderTL()">
+      <option value="">All Grades</option>
+      <option value="11th">Grade 11th</option>
+      <option value="12th">Grade 12th</option>
+    </select>
+    <label>Centre</label>
+    <select id="f-centre" onchange="renderTL()"><option value="">All Centres</option></select>
+    <div class="sp"></div>
+    <input type="text" placeholder="🔍 Search teacher…" oninput="renderTL()" id="f-q" style="min-width:160px">
+  </div>
+  <div class="tlist" id="tlist"></div>
+</div>
+
+<!-- SUBJECT PAGES -->
+
+        <div class="page" id="page-subj-Botany">
+          <div class="ph"><div class="ey">Subject Overview</div>
+            <h1>🌿 Botany</h1>
+            <div class="sub">76 responses · 3 teachers</div></div>
+          <div class="divider"></div>
+          <div class="g1"><div class="card">
+            <div class="ct">Teacher Rankings — click name for full detail</div>
+            <div class="hw"><table class="rank-table">
+              <thead><tr><th>#</th><th>Teacher</th><th>Overall</th><th>n</th>
+                <th>11th Avg</th><th>12th Avg</th><th>Centres</th></tr></thead>
+              <tbody><tr>
+              <td class="rank">#1</td>
+              <td class="tname" onclick="showT('Botany||Irshad Sir')">
+                Irshad Sir</td>
+              <td class="re">4.76</td>
+              <td class="nc">17</td>
+              <td class="re">5.00</td>
+              <td class="rg">4.33</td>
+              <td class="nc">1</td>
+            </tr><tr>
+              <td class="rank">#2</td>
+              <td class="tname" onclick="showT('Botany||Anustubh Sir')">
+                Anustubh Sir</td>
+              <td class="rg">4.48</td>
+              <td class="nc">46</td>
+              <td class="re">4.52</td>
+              <td class="rg">4.41</td>
+              <td class="nc">6</td>
+            </tr><tr>
+              <td class="rank">#3</td>
+              <td class="tname" onclick="showT('Botany||Vicky Vaswani Sir')">
+                Vicky Vaswani Sir</td>
+              <td class="rg">4.31</td>
+              <td class="nc">13</td>
+              <td class="rg">4.31</td>
+              <td class="rx">—</td>
+              <td class="nc">1</td>
+            </tr></tbody>
+            </table></div>
+          </div></div>
+          <div class="g1 card">
+            <div class="ct">Overall Ratings — Botany</div>
+            <div class="leg">
+              <div class="li"><div class="ld" style="background:var(--g11)"></div>Grade 11th</div>
+              <div class="li"><div class="ld" style="background:var(--g12)"></div>Grade 12th</div>
+            </div>
+            <div class="cw" id="cw-Botany" style="height:220px">
+              <canvas id="ch-Botany"></canvas></div>
+          </div>
+        </div>
+        <div class="page" id="page-subj-Zoology">
+          <div class="ph"><div class="ey">Subject Overview</div>
+            <h1>🌿 Zoology</h1>
+            <div class="sub">76 responses · 2 teachers</div></div>
+          <div class="divider"></div>
+          <div class="g1"><div class="card">
+            <div class="ct">Teacher Rankings — click name for full detail</div>
+            <div class="hw"><table class="rank-table">
+              <thead><tr><th>#</th><th>Teacher</th><th>Overall</th><th>n</th>
+                <th>11th Avg</th><th>12th Avg</th><th>Centres</th></tr></thead>
+              <tbody><tr>
+              <td class="rank">#1</td>
+              <td class="tname" onclick="showT('Zoology||Diksha Ma\'am')">
+                Diksha Ma'am</td>
+              <td class="rg">4.32</td>
+              <td class="nc">41</td>
+              <td class="rg">4.46</td>
+              <td class="ra">3.50</td>
+              <td class="nc">6</td>
+            </tr><tr>
+              <td class="rank">#2</td>
+              <td class="tname" onclick="showT('Zoology||Vicky Vaswani Sir')">
+                Vicky Vaswani Sir</td>
+              <td class="ra">3.77</td>
+              <td class="nc">35</td>
+              <td class="rg">4.39</td>
+              <td class="rn">3.12</td>
+              <td class="nc">2</td>
+            </tr></tbody>
+            </table></div>
+          </div></div>
+          <div class="g1 card">
+            <div class="ct">Overall Ratings — Zoology</div>
+            <div class="leg">
+              <div class="li"><div class="ld" style="background:var(--g11)"></div>Grade 11th</div>
+              <div class="li"><div class="ld" style="background:var(--g12)"></div>Grade 12th</div>
+            </div>
+            <div class="cw" id="cw-Zoology" style="height:220px">
+              <canvas id="ch-Zoology"></canvas></div>
+          </div>
+        </div>
+
+<!-- TEACHER DETAIL -->
+<div class="page" id="page-td">
+  <div class="ph">
+    <div class="ey" id="td-ey"></div>
+    <h1 id="td-name"></h1>
+    <div class="sub" id="td-sub"></div>
+  </div>
+  <div class="divider"></div>
+  <div class="mchips" id="td-chips"></div>
+  <div class="kmrow" id="td-kpis"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="st">Centre-wise Overall Rating</div>
+      <div class="leg" id="td-cl"></div>
+      <div class="cw" id="td-cwrap"><canvas id="ch-td-c"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="st">Rubric Averages — All Centres</div>
+      <div class="leg" id="td-rl"></div>
+      <div class="cw" id="td-rwrap"><canvas id="ch-td-r"></canvas></div>
+    </div>
+  </div>
+  <div class="g1"><div class="card">
+    <div class="st">Rubric Heatmap — Centre × Question (all grades combined)</div>
+    <div class="hw" id="td-hm"></div>
+  </div></div>
+  <!-- School-wise Consolidation -->
+  <div class="g1"><div class="card">
+    <div class="st">School-wise Rating Consolidation</div>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px">
+      Per-school breakdown of all 16 rubric parameters split by grade.
+      Scroll horizontally to view all columns.</p>
+    <div class="tabs" id="sc-tabs">
+      <button class="tab active" onclick="switchTab('combined',this)">Combined</button>
+      <button class="tab g11"    onclick="switchTab('11th',this)">Grade 11th</button>
+      <button class="tab g12"    onclick="switchTab('12th',this)">Grade 12th</button>
+    </div>
+    <div class="tabp active" id="sct-combined"><div class="sc-wrap" id="sc-combined"></div></div>
+    <div class="tabp"        id="sct-11th">   <div class="sc-wrap" id="sc-11th"></div></div>
+    <div class="tabp"        id="sct-12th">   <div class="sc-wrap" id="sc-12th"></div></div>
+  </div></div>
+  <!-- Comments -->
+  <div class="g1"><div class="card">
+    <div class="st">Student Comments &amp; Suggestions</div>
+    <div class="cm-sum" id="cm-sum"></div>
+    <div class="fb" style="margin-bottom:12px">
+      <label>Centre</label>
+      <select id="cm-ctr" onchange="renderCM()"><option value="">All Centres</option></select>
+      <label>Grade</label>
+      <select id="cm-gr" onchange="renderCM()">
+        <option value="">All</option>
+        <option value="11th">11th</option>
+        <option value="12th">12th</option>
+      </select>
+      <span id="cm-count" style="margin-left:auto;font-size:.74rem;color:var(--muted);font-style:italic"></span>
+    </div>
+    <div class="cmlist" id="cmlist"></div>
+  </div></div>
+</div>
+
+</main>
+</div>
+
+<script>
+const D = {"subjects":["Botany","Zoology"],"centres":["TCIS, Haralur","Deens Academy, Whitefield","Primus School","Saandeepani School of Excellence","TCIS, Varthur","TFS, Varthur","Deens Academy, Gunjur"],"rubric_labels":["Communication","Interesting class","Interactive class","Clear fundamentals","Problem solving","Resolves doubts","Discipline","Board workbook HW","Module HW","Motivates students","Punctual","Attendance","Informs HW","Discusses HW Qs","Doubts before CCT","CCTs on time"],"meta":{"hod":"Biology","total_responses":152,"total_teachers":4,"total_centres":7,"grade11_n":106,"grade12_n":46,"total_comments":111},"subj_summary":{"Botany":{"n":76,"overall":4.51,"grade":{"11th":{"avg":4.57,"n":53},"12th":{"avg":4.39,"n":23}}},"Zoology":{"n":76,"overall":4.07,"grade":{"11th":{"avg":4.43,"n":53},"12th":{"avg":3.22,"n":23}}}},"centre_subj_heat":{"TCIS, Haralur":{"Botany":4.59,"Zoology":3.9},"Deens Academy, Whitefield":{"Botany":4.47,"Zoology":4.05},"Primus School":{"Botany":4.76,"Zoology":4.24},"Saandeepani School of Excellence":{"Botany":3.5,"Zoology":4.25},"TCIS, Varthur":{"Botany":4.0,"Zoology":4.67},"TFS, Varthur":{"Botany":4.5,"Zoology":4.5},"Deens Academy, Gunjur":{"Botany":4.5,"Zoology":3.5}},"grade_heat":{"11th":{"TCIS, Haralur":4.61,"Deens Academy, Whitefield":4.38,"Primus School":4.82,"Saandeepani School of Excellence":3.88,"TCIS, Varthur":4.33,"TFS, Varthur":4.5,"Deens Academy, Gunjur":4.0},"12th":{"TCIS, Haralur":3.64,"Deens Academy, Whitefield":4.0,"Primus School":3.92,"Saandeepani School of Excellence":null,"TCIS, Varthur":null,"TFS, Varthur":null,"Deens Academy, Gunjur":null}},"teachers":{"Botany||Irshad Sir":{"subject":"Botany","teacher":"Irshad Sir","n":17,"n_centres":1,"grades_present":["11th","12th"],"grade_avgs":{"11th":5.0,"12th":4.33},"overall_avg":4.76,"rubric_avg":4.69,"strongest":"Interactive class","strongest_val":4.88,"weakest":"Problem solving","weakest_val":4.35,"centres":["Primus School"],"centre_data":{"Primus School":{"11th":{"avg":5.0,"n":11},"12th":{"avg":4.33,"n":6}}},"rubric_heatmap":{"Primus School":{"Communication":4.71,"Interesting class":4.76,"Interactive class":4.88,"Clear fundamentals":4.41,"Problem solving":4.35,"Resolves doubts":4.88,"Discipline":4.53,"Board workbook HW":4.53,"Module HW":4.76,"Motivates students":4.76,"Punctual":4.82,"Attendance":4.88,"Informs HW":4.76,"Discusses HW Qs":4.41,"Doubts before CCT":4.71,"CCTs on time":4.88}},"rubric_grade":{"11th":{"Communication":4.91,"Interesting class":4.91,"Interactive class":5.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":4.64,"Board workbook HW":4.82,"Module HW":5.0,"Motivates students":5.0,"Punctual":4.91,"Attendance":5.0,"Informs HW":4.91,"Discusses HW Qs":4.82,"Doubts before CCT":5.0,"CCTs on time":5.0},"12th":{"Communication":4.33,"Interesting class":4.5,"Interactive class":4.67,"Clear fundamentals":3.33,"Problem solving":3.17,"Resolves doubts":4.67,"Discipline":4.33,"Board workbook HW":4.0,"Module HW":4.33,"Motivates students":4.33,"Punctual":4.67,"Attendance":4.67,"Informs HW":4.5,"Discusses HW Qs":3.67,"Doubts before CCT":4.17,"CCTs on time":4.67}},"rubric_overall":{"Communication":4.71,"Interesting class":4.76,"Interactive class":4.88,"Clear fundamentals":4.41,"Problem solving":4.35,"Resolves doubts":4.88,"Discipline":4.53,"Board workbook HW":4.53,"Module HW":4.76,"Motivates students":4.76,"Punctual":4.82,"Attendance":4.88,"Informs HW":4.76,"Discusses HW Qs":4.41,"Doubts before CCT":4.71,"CCTs on time":4.88},"school_cons":[{"centre":"Primus School","combined":{"overall":4.76,"n":17,"rubric":{"Communication":4.71,"Interesting class":4.76,"Interactive class":4.88,"Clear fundamentals":4.41,"Problem solving":4.35,"Resolves doubts":4.88,"Discipline":4.53,"Board workbook HW":4.53,"Module HW":4.76,"Motivates students":4.76,"Punctual":4.82,"Attendance":4.88,"Informs HW":4.76,"Discusses HW Qs":4.41,"Doubts before CCT":4.71,"CCTs on time":4.88}},"grades":{"11th":{"overall":5.0,"n":11,"rubric":{"Communication":4.91,"Interesting class":4.91,"Interactive class":5.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":4.64,"Board workbook HW":4.82,"Module HW":5.0,"Motivates students":5.0,"Punctual":4.91,"Attendance":5.0,"Informs HW":4.91,"Discusses HW Qs":4.82,"Doubts before CCT":5.0,"CCTs on time":5.0}},"12th":{"overall":4.33,"n":6,"rubric":{"Communication":4.33,"Interesting class":4.5,"Interactive class":4.67,"Clear fundamentals":3.33,"Problem solving":3.17,"Resolves doubts":4.67,"Discipline":4.33,"Board workbook HW":4.0,"Module HW":4.33,"Motivates students":4.33,"Punctual":4.67,"Attendance":4.67,"Informs HW":4.5,"Discusses HW Qs":3.67,"Doubts before CCT":4.17,"CCTs on time":4.67}}}}],"comments":{"all":["No suggestions needed, irshad sir is the best teacher.","Amazing and relatable teacher, interactive in class and ensure doubts are solved","He is a very interactive and funny teacher and never let a topic get boring.","Best for bio I like the way he teaches makes the class very interactive","His classes are fun. Teaches really well. Good sense of humor. His classes are really fun and hes chill.","Class is fun but sometimes very distracting","He teaches very interactively and explains more than what is in the ncert , making sure that we have the correct knowledgle of all the topics","Great teacher!!","Sir is excellant in all aspects and sir has no drawbacks at all","Sometimes when we ask doubts he seems unsure about the concept himself which makes it more confusing for us.","always ensures everyone understands the topic and teaches in such a way it is easy to understand","His class is nice","he is a good teacher, but often misses some minor sub-topics, which we realise only after CCT or CT. otherwise he is a really good teacher, my concepts are clear with him.","very good teacher overall, pretty interactive, personally love coming to his classes, pretty easy going while also being disciplined. he should focus more on question practice and sometimes the notes he gives are the exct copy paste of the ncert and not in a structured way as notes should be but otherwise a pretty good teacher","."],"by_centre":{"Primus School":{"11th":["No suggestions needed, irshad sir is the best teacher.","Amazing and relatable teacher, interactive in class and ensure doubts are solved","He is a very interactive and funny teacher and never let a topic get boring.","Best for bio I like the way he teaches makes the class very interactive","His classes are fun. Teaches really well. Good sense of humor. His classes are really fun and hes chill.","Class is fun but sometimes very distracting","He teaches very interactively and explains more than what is in the ncert , making sure that we have the correct knowledgle of all the topics","Great teacher!!","Sir is excellant in all aspects and sir has no drawbacks at all"],"12th":["Sometimes when we ask doubts he seems unsure about the concept himself which makes it more confusing for us.","always ensures everyone understands the topic and teaches in such a way it is easy to understand","His class is nice","he is a good teacher, but often misses some minor sub-topics, which we realise only after CCT or CT. otherwise he is a really good teacher, my concepts are clear with him.","very good teacher overall, pretty interactive, personally love coming to his classes, pretty easy going while also being disciplined. he should focus more on question practice and sometimes the notes he gives are the exct copy paste of the ncert and not in a structured way as notes should be but otherwise a pretty good teacher","."],"all":["No suggestions needed, irshad sir is the best teacher.","Amazing and relatable teacher, interactive in class and ensure doubts are solved","He is a very interactive and funny teacher and never let a topic get boring.","Best for bio I like the way he teaches makes the class very interactive","His classes are fun. Teaches really well. Good sense of humor. His classes are really fun and hes chill.","Class is fun but sometimes very distracting","He teaches very interactively and explains more than what is in the ncert , making sure that we have the correct knowledgle of all the topics","Great teacher!!","Sir is excellant in all aspects and sir has no drawbacks at all","Sometimes when we ask doubts he seems unsure about the concept himself which makes it more confusing for us.","always ensures everyone understands the topic and teaches in such a way it is easy to understand","His class is nice","he is a good teacher, but often misses some minor sub-topics, which we realise only after CCT or CT. otherwise he is a really good teacher, my concepts are clear with him.","very good teacher overall, pretty interactive, personally love coming to his classes, pretty easy going while also being disciplined. he should focus more on question practice and sometimes the notes he gives are the exct copy paste of the ncert and not in a structured way as notes should be but otherwise a pretty good teacher","."]}}}},"Botany||Anustubh Sir":{"subject":"Botany","teacher":"Anustubh Sir","n":46,"n_centres":6,"grades_present":["11th","12th"],"grade_avgs":{"11th":4.52,"12th":4.41},"overall_avg":4.48,"rubric_avg":4.48,"strongest":"Punctual","strongest_val":4.8,"weakest":"Discusses HW Qs","weakest_val":3.93,"centres":["TCIS, Haralur","Deens Academy, Whitefield","Saandeepani School of Excellence","TCIS, Varthur","TFS, Varthur","Deens Academy, Gunjur"],"centre_data":{"TCIS, Haralur":{"11th":{"avg":4.83,"n":18},"12th":{"avg":4.18,"n":11}},"Deens Academy, Whitefield":{"12th":{"avg":4.83,"n":6}},"Saandeepani School of Excellence":{"11th":{"avg":3.5,"n":4}},"TCIS, Varthur":{"11th":{"avg":4.0,"n":3}},"TFS, Varthur":{"11th":{"avg":4.5,"n":2}},"Deens Academy, Gunjur":{"11th":{"avg":4.5,"n":2}}},"rubric_heatmap":{"TCIS, Haralur":{"Communication":4.48,"Interesting class":4.48,"Interactive class":4.59,"Clear fundamentals":4.72,"Problem solving":4.55,"Resolves doubts":4.66,"Discipline":4.55,"Board workbook HW":4.28,"Module HW":4.55,"Motivates students":4.59,"Punctual":4.79,"Attendance":4.69,"Informs HW":4.66,"Discusses HW Qs":3.97,"Doubts before CCT":4.72,"CCTs on time":4.72},"Deens Academy, Whitefield":{"Communication":4.67,"Interesting class":4.83,"Interactive class":4.83,"Clear fundamentals":4.83,"Problem solving":4.67,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":4.67,"Module HW":4.67,"Motivates students":4.83,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":5.0,"Doubts before CCT":5.0,"CCTs on time":4.33},"Saandeepani School of Excellence":{"Communication":3.5,"Interesting class":3.0,"Interactive class":2.25,"Clear fundamentals":3.75,"Problem solving":4.25,"Resolves doubts":3.75,"Discipline":4.75,"Board workbook HW":3.5,"Module HW":3.5,"Motivates students":3.0,"Punctual":4.25,"Attendance":4.25,"Informs HW":3.25,"Discusses HW Qs":2.5,"Doubts before CCT":2.5,"CCTs on time":3.75},"TCIS, Varthur":{"Communication":4.33,"Interesting class":3.67,"Interactive class":3.67,"Clear fundamentals":4.67,"Problem solving":4.33,"Resolves doubts":4.67,"Discipline":3.67,"Board workbook HW":4.33,"Module HW":4.67,"Motivates students":3.33,"Punctual":5.0,"Attendance":5.0,"Informs HW":4.67,"Discusses HW Qs":3.67,"Doubts before CCT":5.0,"CCTs on time":4.0},"TFS, Varthur":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.5,"Clear fundamentals":4.5,"Problem solving":5.0,"Resolves doubts":4.0,"Discipline":4.0,"Board workbook HW":3.0,"Module HW":4.0,"Motivates students":3.5,"Punctual":5.0,"Attendance":4.5,"Informs HW":3.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.5,"CCTs on time":5.0},"Deens Academy, Gunjur":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":5.0,"Module HW":5.0,"Motivates students":5.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":4.5,"Doubts before CCT":5.0,"CCTs on time":5.0}},"rubric_grade":{"11th":{"Communication":4.45,"Interesting class":4.28,"Interactive class":4.14,"Clear fundamentals":4.69,"Problem solving":4.55,"Resolves doubts":4.59,"Discipline":4.48,"Board workbook HW":4.24,"Module HW":4.41,"Motivates students":4.31,"Punctual":4.76,"Attendance":4.66,"Informs HW":4.31,"Discusses HW Qs":3.79,"Doubts before CCT":4.34,"CCTs on time":4.52},"12th":{"Communication":4.47,"Interesting class":4.47,"Interactive class":4.65,"Clear fundamentals":4.59,"Problem solving":4.59,"Resolves doubts":4.65,"Discipline":4.71,"Board workbook HW":4.24,"Module HW":4.59,"Motivates students":4.47,"Punctual":4.88,"Attendance":4.82,"Informs HW":4.88,"Discusses HW Qs":4.18,"Doubts before CCT":4.88,"CCTs on time":4.65}},"rubric_overall":{"Communication":4.46,"Interesting class":4.35,"Interactive class":4.33,"Clear fundamentals":4.65,"Problem solving":4.57,"Resolves doubts":4.61,"Discipline":4.57,"Board workbook HW":4.24,"Module HW":4.48,"Motivates students":4.37,"Punctual":4.8,"Attendance":4.72,"Informs HW":4.52,"Discusses HW Qs":3.93,"Doubts before CCT":4.54,"CCTs on time":4.57},"school_cons":[{"centre":"TCIS, Haralur","combined":{"overall":4.59,"n":29,"rubric":{"Communication":4.48,"Interesting class":4.48,"Interactive class":4.59,"Clear fundamentals":4.72,"Problem solving":4.55,"Resolves doubts":4.66,"Discipline":4.55,"Board workbook HW":4.28,"Module HW":4.55,"Motivates students":4.59,"Punctual":4.79,"Attendance":4.69,"Informs HW":4.66,"Discusses HW Qs":3.97,"Doubts before CCT":4.72,"CCTs on time":4.72}},"grades":{"11th":{"overall":4.83,"n":18,"rubric":{"Communication":4.56,"Interesting class":4.61,"Interactive class":4.61,"Clear fundamentals":4.89,"Problem solving":4.56,"Resolves doubts":4.78,"Discipline":4.56,"Board workbook HW":4.44,"Module HW":4.56,"Motivates students":4.78,"Punctual":4.78,"Attendance":4.67,"Informs HW":4.56,"Discusses HW Qs":4.11,"Doubts before CCT":4.67,"CCTs on time":4.67}},"12th":{"overall":4.18,"n":11,"rubric":{"Communication":4.36,"Interesting class":4.27,"Interactive class":4.55,"Clear fundamentals":4.45,"Problem solving":4.55,"Resolves doubts":4.45,"Discipline":4.55,"Board workbook HW":4.0,"Module HW":4.55,"Motivates students":4.27,"Punctual":4.82,"Attendance":4.73,"Informs HW":4.82,"Discusses HW Qs":3.73,"Doubts before CCT":4.82,"CCTs on time":4.82}}}},{"centre":"Deens Academy, Whitefield","combined":{"overall":4.83,"n":6,"rubric":{"Communication":4.67,"Interesting class":4.83,"Interactive class":4.83,"Clear fundamentals":4.83,"Problem solving":4.67,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":4.67,"Module HW":4.67,"Motivates students":4.83,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":5.0,"Doubts before CCT":5.0,"CCTs on time":4.33}},"grades":{"12th":{"overall":4.83,"n":6,"rubric":{"Communication":4.67,"Interesting class":4.83,"Interactive class":4.83,"Clear fundamentals":4.83,"Problem solving":4.67,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":4.67,"Module HW":4.67,"Motivates students":4.83,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":5.0,"Doubts before CCT":5.0,"CCTs on time":4.33}}}},{"centre":"Saandeepani School of Excellence","combined":{"overall":3.5,"n":4,"rubric":{"Communication":3.5,"Interesting class":3.0,"Interactive class":2.25,"Clear fundamentals":3.75,"Problem solving":4.25,"Resolves doubts":3.75,"Discipline":4.75,"Board workbook HW":3.5,"Module HW":3.5,"Motivates students":3.0,"Punctual":4.25,"Attendance":4.25,"Informs HW":3.25,"Discusses HW Qs":2.5,"Doubts before CCT":2.5,"CCTs on time":3.75}},"grades":{"11th":{"overall":3.5,"n":4,"rubric":{"Communication":3.5,"Interesting class":3.0,"Interactive class":2.25,"Clear fundamentals":3.75,"Problem solving":4.25,"Resolves doubts":3.75,"Discipline":4.75,"Board workbook HW":3.5,"Module HW":3.5,"Motivates students":3.0,"Punctual":4.25,"Attendance":4.25,"Informs HW":3.25,"Discusses HW Qs":2.5,"Doubts before CCT":2.5,"CCTs on time":3.75}}}},{"centre":"TCIS, Varthur","combined":{"overall":4.0,"n":3,"rubric":{"Communication":4.33,"Interesting class":3.67,"Interactive class":3.67,"Clear fundamentals":4.67,"Problem solving":4.33,"Resolves doubts":4.67,"Discipline":3.67,"Board workbook HW":4.33,"Module HW":4.67,"Motivates students":3.33,"Punctual":5.0,"Attendance":5.0,"Informs HW":4.67,"Discusses HW Qs":3.67,"Doubts before CCT":5.0,"CCTs on time":4.0}},"grades":{"11th":{"overall":4.0,"n":3,"rubric":{"Communication":4.33,"Interesting class":3.67,"Interactive class":3.67,"Clear fundamentals":4.67,"Problem solving":4.33,"Resolves doubts":4.67,"Discipline":3.67,"Board workbook HW":4.33,"Module HW":4.67,"Motivates students":3.33,"Punctual":5.0,"Attendance":5.0,"Informs HW":4.67,"Discusses HW Qs":3.67,"Doubts before CCT":5.0,"CCTs on time":4.0}}}},{"centre":"TFS, Varthur","combined":{"overall":4.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.5,"Clear fundamentals":4.5,"Problem solving":5.0,"Resolves doubts":4.0,"Discipline":4.0,"Board workbook HW":3.0,"Module HW":4.0,"Motivates students":3.5,"Punctual":5.0,"Attendance":4.5,"Informs HW":3.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.5,"CCTs on time":5.0}},"grades":{"11th":{"overall":4.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.5,"Clear fundamentals":4.5,"Problem solving":5.0,"Resolves doubts":4.0,"Discipline":4.0,"Board workbook HW":3.0,"Module HW":4.0,"Motivates students":3.5,"Punctual":5.0,"Attendance":4.5,"Informs HW":3.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.5,"CCTs on time":5.0}}}},{"centre":"Deens Academy, Gunjur","combined":{"overall":4.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":5.0,"Module HW":5.0,"Motivates students":5.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":4.5,"Doubts before CCT":5.0,"CCTs on time":5.0}},"grades":{"11th":{"overall":4.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":5.0,"Module HW":5.0,"Motivates students":5.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":4.5,"Doubts before CCT":5.0,"CCTs on time":5.0}}}}],"comments":{"all":["Nice","Very good overall, but can give homework earlier on the same day of class.","Makes class really interactive and interesting","Can give more questions for practice in class","He teaches very nicely","I love you","Very motivating good teacher","perfect botany teacher",".","Very good conceptual knowledge and great understanding","Evrything is good, I hope we continue with the same teacher","Sir teaches concepts clearly","he's pretty great, probably the best biology teacher I've had","Thx sm for the amazing stories tht keep the class entertained","Nothing","amazing","Very good notes","Very friendly and make class very interesting","He is a good teacher but the classes are not very interactive.","Excellent teacher","Very good teacher","Nothing","To provide the botany homework in class and make the online class more interactive","Good and motivating sir (a bit strict) but that's okk","Teaches good","😇😇","great teacher, very detailed notes and explanations","Is good at subject","Anustubh sir always asks many questions during class and allows everyone to participate. He answers our doubts immediately, overall I enjoy botany classes with him","Sir makes the classes really interactive","Sir is a wonderful teacher.","Sir teaches all the concepts clearly and resolves doubts effectively.","Classes are interactive and concepts are well taught"],"by_centre":{"TCIS, Haralur":{"11th":["Nice","He teaches very nicely","Very motivating good teacher","Very good conceptual knowledge and great understanding","Evrything is good, I hope we continue with the same teacher","Sir teaches concepts clearly","he's pretty great, probably the best biology teacher I've had","Thx sm for the amazing stories tht keep the class entertained","Nothing","amazing","Very good notes","Very friendly and make class very interesting","Teaches good","😇😇","Classes are interactive and concepts are well taught"],"12th":["Makes class really interactive and interesting","Can give more questions for practice in class","I love you","perfect botany teacher",".","great teacher, very detailed notes and explanations","Sir makes the classes really interactive"],"all":["Nice","Makes class really interactive and interesting","Can give more questions for practice in class","He teaches very nicely","I love you","Very motivating good teacher","perfect botany teacher",".","Very good conceptual knowledge and great understanding","Evrything is good, I hope we continue with the same teacher","Sir teaches concepts clearly","he's pretty great, probably the best biology teacher I've had","Thx sm for the amazing stories tht keep the class entertained","Nothing","amazing","Very good notes","Very friendly and make class very interesting","Teaches good","😇😇","great teacher, very detailed notes and explanations","Sir makes the classes really interactive","Classes are interactive and concepts are well taught"]},"Deens Academy, Whitefield":{"12th":["Excellent teacher","Very good teacher","Nothing"],"all":["Excellent teacher","Very good teacher","Nothing"]},"Saandeepani School of Excellence":{"11th":["He is a good teacher but the classes are not very interactive.","To provide the botany homework in class and make the online class more interactive","Good and motivating sir (a bit strict) but that's okk"],"all":["He is a good teacher but the classes are not very interactive.","To provide the botany homework in class and make the online class more interactive","Good and motivating sir (a bit strict) but that's okk"]},"TCIS, Varthur":{"11th":["Anustubh sir always asks many questions during class and allows everyone to participate. He answers our doubts immediately, overall I enjoy botany classes with him","Sir is a wonderful teacher."],"all":["Anustubh sir always asks many questions during class and allows everyone to participate. He answers our doubts immediately, overall I enjoy botany classes with him","Sir is a wonderful teacher."]},"TFS, Varthur":{"11th":["Very good overall, but can give homework earlier on the same day of class.","Is good at subject"],"all":["Very good overall, but can give homework earlier on the same day of class.","Is good at subject"]},"Deens Academy, Gunjur":{"11th":["Sir teaches all the concepts clearly and resolves doubts effectively."],"all":["Sir teaches all the concepts clearly and resolves doubts effectively."]}}}},"Botany||Vicky Vaswani Sir":{"subject":"Botany","teacher":"Vicky Vaswani Sir","n":13,"n_centres":1,"grades_present":["11th"],"grade_avgs":{"11th":4.31},"overall_avg":4.31,"rubric_avg":4.47,"strongest":"Attendance","strongest_val":4.92,"weakest":"Discusses HW Qs","weakest_val":3.77,"centres":["Deens Academy, Whitefield"],"centre_data":{"Deens Academy, Whitefield":{"11th":{"avg":4.31,"n":13}}},"rubric_heatmap":{"Deens Academy, Whitefield":{"Communication":4.15,"Interesting class":4.23,"Interactive class":4.54,"Clear fundamentals":4.46,"Problem solving":4.38,"Resolves doubts":4.08,"Discipline":4.38,"Board workbook HW":4.08,"Module HW":4.77,"Motivates students":4.85,"Punctual":4.85,"Attendance":4.92,"Informs HW":4.77,"Discusses HW Qs":3.77,"Doubts before CCT":4.38,"CCTs on time":4.92}},"rubric_grade":{"11th":{"Communication":4.15,"Interesting class":4.23,"Interactive class":4.54,"Clear fundamentals":4.46,"Problem solving":4.38,"Resolves doubts":4.08,"Discipline":4.38,"Board workbook HW":4.08,"Module HW":4.77,"Motivates students":4.85,"Punctual":4.85,"Attendance":4.92,"Informs HW":4.77,"Discusses HW Qs":3.77,"Doubts before CCT":4.38,"CCTs on time":4.92}},"rubric_overall":{"Communication":4.15,"Interesting class":4.23,"Interactive class":4.54,"Clear fundamentals":4.46,"Problem solving":4.38,"Resolves doubts":4.08,"Discipline":4.38,"Board workbook HW":4.08,"Module HW":4.77,"Motivates students":4.85,"Punctual":4.85,"Attendance":4.92,"Informs HW":4.77,"Discusses HW Qs":3.77,"Doubts before CCT":4.38,"CCTs on time":4.92},"school_cons":[{"centre":"Deens Academy, Whitefield","combined":{"overall":4.31,"n":13,"rubric":{"Communication":4.15,"Interesting class":4.23,"Interactive class":4.54,"Clear fundamentals":4.46,"Problem solving":4.38,"Resolves doubts":4.08,"Discipline":4.38,"Board workbook HW":4.08,"Module HW":4.77,"Motivates students":4.85,"Punctual":4.85,"Attendance":4.92,"Informs HW":4.77,"Discusses HW Qs":3.77,"Doubts before CCT":4.38,"CCTs on time":4.92}},"grades":{"11th":{"overall":4.31,"n":13,"rubric":{"Communication":4.15,"Interesting class":4.23,"Interactive class":4.54,"Clear fundamentals":4.46,"Problem solving":4.38,"Resolves doubts":4.08,"Discipline":4.38,"Board workbook HW":4.08,"Module HW":4.77,"Motivates students":4.85,"Punctual":4.85,"Attendance":4.92,"Informs HW":4.77,"Discusses HW Qs":3.77,"Doubts before CCT":4.38,"CCTs on time":4.92}}}}],"comments":{"all":["More in class quiz should be conducted","Explain concepts a little slower","Vicky sir should teach us zoology also along with botony","Greatest teacher oat.","Amazing teacher; Hope teachers are not changed for botany","Sir clearly points out which questions are important while teaching each topic. Sometimes sir gives extra information, but it isn’t clear if it is part of our syllabus or not."],"by_centre":{"Deens Academy, Whitefield":{"11th":["More in class quiz should be conducted","Explain concepts a little slower","Vicky sir should teach us zoology also along with botony","Greatest teacher oat.","Amazing teacher; Hope teachers are not changed for botany","Sir clearly points out which questions are important while teaching each topic. Sometimes sir gives extra information, but it isn’t clear if it is part of our syllabus or not."],"all":["More in class quiz should be conducted","Explain concepts a little slower","Vicky sir should teach us zoology also along with botony","Greatest teacher oat.","Amazing teacher; Hope teachers are not changed for botany","Sir clearly points out which questions are important while teaching each topic. Sometimes sir gives extra information, but it isn’t clear if it is part of our syllabus or not."]}}}},"Zoology||Diksha Ma'am":{"subject":"Zoology","teacher":"Diksha Ma'am","n":41,"n_centres":6,"grades_present":["11th","12th"],"grade_avgs":{"11th":4.46,"12th":3.5},"overall_avg":4.32,"rubric_avg":4.52,"strongest":"Attendance","strongest_val":4.93,"weakest":"Interactive class","weakest_val":4.15,"centres":["Primus School","Deens Academy, Whitefield","Saandeepani School of Excellence","TCIS, Varthur","TFS, Varthur","Deens Academy, Gunjur"],"centre_data":{"Primus School":{"11th":{"avg":4.64,"n":11},"12th":{"avg":3.5,"n":6}},"Deens Academy, Whitefield":{"11th":{"avg":4.46,"n":13}},"Saandeepani School of Excellence":{"11th":{"avg":4.25,"n":4}},"TCIS, Varthur":{"11th":{"avg":4.67,"n":3}},"TFS, Varthur":{"11th":{"avg":4.5,"n":2}},"Deens Academy, Gunjur":{"11th":{"avg":3.5,"n":2}}},"rubric_heatmap":{"Primus School":{"Communication":4.24,"Interesting class":4.12,"Interactive class":4.06,"Clear fundamentals":4.71,"Problem solving":4.71,"Resolves doubts":4.88,"Discipline":4.71,"Board workbook HW":4.24,"Module HW":4.53,"Motivates students":4.35,"Punctual":4.94,"Attendance":4.88,"Informs HW":4.82,"Discusses HW Qs":4.59,"Doubts before CCT":4.76,"CCTs on time":4.82},"Deens Academy, Whitefield":{"Communication":4.62,"Interesting class":4.46,"Interactive class":4.54,"Clear fundamentals":4.77,"Problem solving":4.69,"Resolves doubts":4.92,"Discipline":4.69,"Board workbook HW":4.08,"Module HW":4.85,"Motivates students":4.38,"Punctual":4.54,"Attendance":4.92,"Informs HW":4.92,"Discusses HW Qs":4.08,"Doubts before CCT":4.77,"CCTs on time":4.85},"Saandeepani School of Excellence":{"Communication":4.25,"Interesting class":4.25,"Interactive class":3.75,"Clear fundamentals":4.0,"Problem solving":4.0,"Resolves doubts":4.5,"Discipline":4.0,"Board workbook HW":3.5,"Module HW":3.75,"Motivates students":3.75,"Punctual":4.75,"Attendance":5.0,"Informs HW":4.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.5,"CCTs on time":4.25},"TCIS, Varthur":{"Communication":4.33,"Interesting class":4.33,"Interactive class":4.0,"Clear fundamentals":4.0,"Problem solving":4.33,"Resolves doubts":5.0,"Discipline":3.67,"Board workbook HW":4.67,"Module HW":4.67,"Motivates students":4.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":3.67,"Discusses HW Qs":3.67,"Doubts before CCT":4.67,"CCTs on time":4.33},"TFS, Varthur":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":4.5,"Discipline":4.5,"Board workbook HW":4.0,"Module HW":4.0,"Motivates students":4.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":4.5,"Discusses HW Qs":3.0,"Doubts before CCT":4.5,"CCTs on time":5.0},"Deens Academy, Gunjur":{"Communication":5.0,"Interesting class":3.0,"Interactive class":3.5,"Clear fundamentals":4.5,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":3.5,"Board workbook HW":5.0,"Module HW":5.0,"Motivates students":3.5,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":5.0,"Doubts before CCT":5.0,"CCTs on time":5.0}},"rubric_grade":{"11th":{"Communication":4.6,"Interesting class":4.37,"Interactive class":4.34,"Clear fundamentals":4.63,"Problem solving":4.66,"Resolves doubts":4.89,"Discipline":4.54,"Board workbook HW":4.26,"Module HW":4.63,"Motivates students":4.4,"Punctual":4.8,"Attendance":4.97,"Informs HW":4.71,"Discusses HW Qs":4.14,"Doubts before CCT":4.66,"CCTs on time":4.77},"12th":{"Communication":3.5,"Interesting class":3.33,"Interactive class":3.0,"Clear fundamentals":4.5,"Problem solving":4.5,"Resolves doubts":4.67,"Discipline":4.17,"Board workbook HW":3.67,"Module HW":4.17,"Motivates students":3.17,"Punctual":4.83,"Attendance":4.67,"Informs HW":4.5,"Discusses HW Qs":4.17,"Doubts before CCT":4.5,"CCTs on time":4.67}},"rubric_overall":{"Communication":4.44,"Interesting class":4.22,"Interactive class":4.15,"Clear fundamentals":4.61,"Problem solving":4.63,"Resolves doubts":4.85,"Discipline":4.49,"Board workbook HW":4.17,"Module HW":4.56,"Motivates students":4.22,"Punctual":4.8,"Attendance":4.93,"Informs HW":4.68,"Discusses HW Qs":4.15,"Doubts before CCT":4.63,"CCTs on time":4.76},"school_cons":[{"centre":"Primus School","combined":{"overall":4.24,"n":17,"rubric":{"Communication":4.24,"Interesting class":4.12,"Interactive class":4.06,"Clear fundamentals":4.71,"Problem solving":4.71,"Resolves doubts":4.88,"Discipline":4.71,"Board workbook HW":4.24,"Module HW":4.53,"Motivates students":4.35,"Punctual":4.94,"Attendance":4.88,"Informs HW":4.82,"Discusses HW Qs":4.59,"Doubts before CCT":4.76,"CCTs on time":4.82}},"grades":{"11th":{"overall":4.64,"n":11,"rubric":{"Communication":4.64,"Interesting class":4.55,"Interactive class":4.64,"Clear fundamentals":4.82,"Problem solving":4.82,"Resolves doubts":5.0,"Discipline":5.0,"Board workbook HW":4.55,"Module HW":4.73,"Motivates students":5.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":4.82,"Doubts before CCT":4.91,"CCTs on time":4.91}},"12th":{"overall":3.5,"n":6,"rubric":{"Communication":3.5,"Interesting class":3.33,"Interactive class":3.0,"Clear fundamentals":4.5,"Problem solving":4.5,"Resolves doubts":4.67,"Discipline":4.17,"Board workbook HW":3.67,"Module HW":4.17,"Motivates students":3.17,"Punctual":4.83,"Attendance":4.67,"Informs HW":4.5,"Discusses HW Qs":4.17,"Doubts before CCT":4.5,"CCTs on time":4.67}}}},{"centre":"Deens Academy, Whitefield","combined":{"overall":4.46,"n":13,"rubric":{"Communication":4.62,"Interesting class":4.46,"Interactive class":4.54,"Clear fundamentals":4.77,"Problem solving":4.69,"Resolves doubts":4.92,"Discipline":4.69,"Board workbook HW":4.08,"Module HW":4.85,"Motivates students":4.38,"Punctual":4.54,"Attendance":4.92,"Informs HW":4.92,"Discusses HW Qs":4.08,"Doubts before CCT":4.77,"CCTs on time":4.85}},"grades":{"11th":{"overall":4.46,"n":13,"rubric":{"Communication":4.62,"Interesting class":4.46,"Interactive class":4.54,"Clear fundamentals":4.77,"Problem solving":4.69,"Resolves doubts":4.92,"Discipline":4.69,"Board workbook HW":4.08,"Module HW":4.85,"Motivates students":4.38,"Punctual":4.54,"Attendance":4.92,"Informs HW":4.92,"Discusses HW Qs":4.08,"Doubts before CCT":4.77,"CCTs on time":4.85}}}},{"centre":"Saandeepani School of Excellence","combined":{"overall":4.25,"n":4,"rubric":{"Communication":4.25,"Interesting class":4.25,"Interactive class":3.75,"Clear fundamentals":4.0,"Problem solving":4.0,"Resolves doubts":4.5,"Discipline":4.0,"Board workbook HW":3.5,"Module HW":3.75,"Motivates students":3.75,"Punctual":4.75,"Attendance":5.0,"Informs HW":4.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.5,"CCTs on time":4.25}},"grades":{"11th":{"overall":4.25,"n":4,"rubric":{"Communication":4.25,"Interesting class":4.25,"Interactive class":3.75,"Clear fundamentals":4.0,"Problem solving":4.0,"Resolves doubts":4.5,"Discipline":4.0,"Board workbook HW":3.5,"Module HW":3.75,"Motivates students":3.75,"Punctual":4.75,"Attendance":5.0,"Informs HW":4.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.5,"CCTs on time":4.25}}}},{"centre":"TCIS, Varthur","combined":{"overall":4.67,"n":3,"rubric":{"Communication":4.33,"Interesting class":4.33,"Interactive class":4.0,"Clear fundamentals":4.0,"Problem solving":4.33,"Resolves doubts":5.0,"Discipline":3.67,"Board workbook HW":4.67,"Module HW":4.67,"Motivates students":4.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":3.67,"Discusses HW Qs":3.67,"Doubts before CCT":4.67,"CCTs on time":4.33}},"grades":{"11th":{"overall":4.67,"n":3,"rubric":{"Communication":4.33,"Interesting class":4.33,"Interactive class":4.0,"Clear fundamentals":4.0,"Problem solving":4.33,"Resolves doubts":5.0,"Discipline":3.67,"Board workbook HW":4.67,"Module HW":4.67,"Motivates students":4.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":3.67,"Discusses HW Qs":3.67,"Doubts before CCT":4.67,"CCTs on time":4.33}}}},{"centre":"TFS, Varthur","combined":{"overall":4.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":4.5,"Discipline":4.5,"Board workbook HW":4.0,"Module HW":4.0,"Motivates students":4.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":4.5,"Discusses HW Qs":3.0,"Doubts before CCT":4.5,"CCTs on time":5.0}},"grades":{"11th":{"overall":4.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":4.5,"Interactive class":4.0,"Clear fundamentals":5.0,"Problem solving":5.0,"Resolves doubts":4.5,"Discipline":4.5,"Board workbook HW":4.0,"Module HW":4.0,"Motivates students":4.0,"Punctual":5.0,"Attendance":5.0,"Informs HW":4.5,"Discusses HW Qs":3.0,"Doubts before CCT":4.5,"CCTs on time":5.0}}}},{"centre":"Deens Academy, Gunjur","combined":{"overall":3.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":3.0,"Interactive class":3.5,"Clear fundamentals":4.5,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":3.5,"Board workbook HW":5.0,"Module HW":5.0,"Motivates students":3.5,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":5.0,"Doubts before CCT":5.0,"CCTs on time":5.0}},"grades":{"11th":{"overall":3.5,"n":2,"rubric":{"Communication":5.0,"Interesting class":3.0,"Interactive class":3.5,"Clear fundamentals":4.5,"Problem solving":5.0,"Resolves doubts":5.0,"Discipline":3.5,"Board workbook HW":5.0,"Module HW":5.0,"Motivates students":3.5,"Punctual":5.0,"Attendance":5.0,"Informs HW":5.0,"Discusses HW Qs":5.0,"Doubts before CCT":5.0,"CCTs on time":5.0}}}}],"comments":{"all":["Best zoology teacher. I wish to have her in 12th too.","Good teacher, but could improve slightly in her doubt solving as well as conveying information","Ma’am, is a very good teacher and explains everything so clearly that even a genuine doubt sounds like a silly one. The only problem is that she doesn’t let us talk in class.","Amazing teacher. She teaches the best. The way she teaches gives us such a clear understanding it's magical","Very nice","She makes sure that we are through with all topics and her teaching style makes it very easy to remember topics , thus leading us to need less time towards studying zoology","Makes learning more interesting","Maam is very good and has no noteworthy drawbacks","More in class quiz should be conducted","She's really nice","Good teacher but the class should be conducted better as there is always problems with network","When we talk in between class for a short amount of time while she’s not teaching or while people are copying the notes, she gets really mad that we are talking. I feel like this creates a very boring environment since every class is almost 6 hours long.","Taking the doubts at the end of class or a topic as well as letting us now know the homework for each day","Good teaching ma'am.","Thx for the rlly informative classes.","teaches giving many examples which is easy to remeber","Her class is fine","very good teacher, notes are very good, and all concepts are very clear","she teaches very well,  but her classes are a bit boring, and not as interactive as they should be, but otherwise no complaints",".","Teaches very well","No suggestion","Diksha ma'am makes sure we are clear with our concepts regularly and keeps the classes interactive. I enjoy studing zoology with her","Ma'am teaches very well.","Ma'am explains concepts and solves doubts clearly.Classes could be a little more engaging and interactive.","Good teacher; hope teacher is not changed for zoology","Maam is good at teaching the topic and also makes sure any doubts we have are cleared at the same time."],"by_centre":{"Primus School":{"11th":["Best zoology teacher. I wish to have her in 12th too.","Good teacher, but could improve slightly in her doubt solving as well as conveying information","Ma’am, is a very good teacher and explains everything so clearly that even a genuine doubt sounds like a silly one. The only problem is that she doesn’t let us talk in class.","Amazing teacher. She teaches the best. The way she teaches gives us such a clear understanding it's magical","Very nice","She makes sure that we are through with all topics and her teaching style makes it very easy to remember topics , thus leading us to need less time towards studying zoology","Makes learning more interesting","Maam is very good and has no noteworthy drawbacks"],"12th":["When we talk in between class for a short amount of time while she’s not teaching or while people are copying the notes, she gets really mad that we are talking. I feel like this creates a very boring environment since every class is almost 6 hours long.","teaches giving many examples which is easy to remeber","Her class is fine","very good teacher, notes are very good, and all concepts are very clear","she teaches very well,  but her classes are a bit boring, and not as interactive as they should be, but otherwise no complaints","."],"all":["Best zoology teacher. I wish to have her in 12th too.","Good teacher, but could improve slightly in her doubt solving as well as conveying information","Ma’am, is a very good teacher and explains everything so clearly that even a genuine doubt sounds like a silly one. The only problem is that she doesn’t let us talk in class.","Amazing teacher. She teaches the best. The way she teaches gives us such a clear understanding it's magical","Very nice","She makes sure that we are through with all topics and her teaching style makes it very easy to remember topics , thus leading us to need less time towards studying zoology","Makes learning more interesting","Maam is very good and has no noteworthy drawbacks","When we talk in between class for a short amount of time while she’s not teaching or while people are copying the notes, she gets really mad that we are talking. I feel like this creates a very boring environment since every class is almost 6 hours long.","teaches giving many examples which is easy to remeber","Her class is fine","very good teacher, notes are very good, and all concepts are very clear","she teaches very well,  but her classes are a bit boring, and not as interactive as they should be, but otherwise no complaints","."]},"Deens Academy, Whitefield":{"11th":["More in class quiz should be conducted","She's really nice","Thx for the rlly informative classes.","Good teacher; hope teacher is not changed for zoology","Maam is good at teaching the topic and also makes sure any doubts we have are cleared at the same time."],"all":["More in class quiz should be conducted","She's really nice","Thx for the rlly informative classes.","Good teacher; hope teacher is not changed for zoology","Maam is good at teaching the topic and also makes sure any doubts we have are cleared at the same time."]},"Saandeepani School of Excellence":{"11th":["Good teacher but the class should be conducted better as there is always problems with network","Taking the doubts at the end of class or a topic as well as letting us now know the homework for each day","Good teaching ma'am."],"all":["Good teacher but the class should be conducted better as there is always problems with network","Taking the doubts at the end of class or a topic as well as letting us now know the homework for each day","Good teaching ma'am."]},"TCIS, Varthur":{"11th":["No suggestion","Diksha ma'am makes sure we are clear with our concepts regularly and keeps the classes interactive. I enjoy studing zoology with her","Ma'am teaches very well."],"all":["No suggestion","Diksha ma'am makes sure we are clear with our concepts regularly and keeps the classes interactive. I enjoy studing zoology with her","Ma'am teaches very well."]},"TFS, Varthur":{"11th":["Teaches very well"],"all":["Teaches very well"]},"Deens Academy, Gunjur":{"11th":["Ma'am explains concepts and solves doubts clearly.Classes could be a little more engaging and interactive."],"all":["Ma'am explains concepts and solves doubts clearly.Classes could be a little more engaging and interactive."]}}}},"Zoology||Vicky Vaswani Sir":{"subject":"Zoology","teacher":"Vicky Vaswani Sir","n":35,"n_centres":2,"grades_present":["11th","12th"],"grade_avgs":{"11th":4.39,"12th":3.12},"overall_avg":3.77,"rubric_avg":4.0,"strongest":"CCTs on time","strongest_val":4.46,"weakest":"Clear fundamentals","weakest_val":3.6,"centres":["TCIS, Haralur","Deens Academy, Whitefield"],"centre_data":{"TCIS, Haralur":{"11th":{"avg":4.39,"n":18},"12th":{"avg":3.09,"n":11}},"Deens Academy, Whitefield":{"12th":{"avg":3.17,"n":6}}},"rubric_heatmap":{"TCIS, Haralur":{"Communication":4.03,"Interesting class":4.0,"Interactive class":3.97,"Clear fundamentals":3.76,"Problem solving":4.21,"Resolves doubts":4.07,"Discipline":4.21,"Board workbook HW":3.62,"Module HW":3.86,"Motivates students":4.24,"Punctual":4.07,"Attendance":4.24,"Informs HW":3.86,"Discusses HW Qs":3.62,"Doubts before CCT":4.0,"CCTs on time":4.41},"Deens Academy, Whitefield":{"Communication":3.0,"Interesting class":2.33,"Interactive class":2.83,"Clear fundamentals":2.83,"Problem solving":3.83,"Resolves doubts":3.17,"Discipline":4.83,"Board workbook HW":4.5,"Module HW":4.83,"Motivates students":4.5,"Punctual":5.0,"Attendance":5.0,"Informs HW":3.67,"Discusses HW Qs":3.5,"Doubts before CCT":4.5,"CCTs on time":4.67}},"rubric_grade":{"11th":{"Communication":4.44,"Interesting class":4.44,"Interactive class":4.5,"Clear fundamentals":4.22,"Problem solving":4.5,"Resolves doubts":4.33,"Discipline":4.33,"Board workbook HW":3.89,"Module HW":4.17,"Motivates students":4.61,"Punctual":4.78,"Attendance":4.44,"Informs HW":4.39,"Discusses HW Qs":4.0,"Doubts before CCT":4.39,"CCTs on time":4.78},"12th":{"Communication":3.24,"Interesting class":2.94,"Interactive class":3.0,"Clear fundamentals":2.94,"Problem solving":3.76,"Resolves doubts":3.47,"Discipline":4.29,"Board workbook HW":3.65,"Module HW":3.88,"Motivates students":3.94,"Punctual":3.65,"Attendance":4.29,"Informs HW":3.24,"Discusses HW Qs":3.18,"Doubts before CCT":3.76,"CCTs on time":4.12}},"rubric_overall":{"Communication":3.86,"Interesting class":3.71,"Interactive class":3.77,"Clear fundamentals":3.6,"Problem solving":4.14,"Resolves doubts":3.91,"Discipline":4.31,"Board workbook HW":3.77,"Module HW":4.03,"Motivates students":4.29,"Punctual":4.23,"Attendance":4.37,"Informs HW":3.83,"Discusses HW Qs":3.6,"Doubts before CCT":4.09,"CCTs on time":4.46},"school_cons":[{"centre":"TCIS, Haralur","combined":{"overall":3.9,"n":29,"rubric":{"Communication":4.03,"Interesting class":4.0,"Interactive class":3.97,"Clear fundamentals":3.76,"Problem solving":4.21,"Resolves doubts":4.07,"Discipline":4.21,"Board workbook HW":3.62,"Module HW":3.86,"Motivates students":4.24,"Punctual":4.07,"Attendance":4.24,"Informs HW":3.86,"Discusses HW Qs":3.62,"Doubts before CCT":4.0,"CCTs on time":4.41}},"grades":{"11th":{"overall":4.39,"n":18,"rubric":{"Communication":4.44,"Interesting class":4.44,"Interactive class":4.5,"Clear fundamentals":4.22,"Problem solving":4.5,"Resolves doubts":4.33,"Discipline":4.33,"Board workbook HW":3.89,"Module HW":4.17,"Motivates students":4.61,"Punctual":4.78,"Attendance":4.44,"Informs HW":4.39,"Discusses HW Qs":4.0,"Doubts before CCT":4.39,"CCTs on time":4.78}},"12th":{"overall":3.09,"n":11,"rubric":{"Communication":3.36,"Interesting class":3.27,"Interactive class":3.09,"Clear fundamentals":3.0,"Problem solving":3.73,"Resolves doubts":3.64,"Discipline":4.0,"Board workbook HW":3.18,"Module HW":3.36,"Motivates students":3.64,"Punctual":2.91,"Attendance":3.91,"Informs HW":3.0,"Discusses HW Qs":3.0,"Doubts before CCT":3.36,"CCTs on time":3.82}}}},{"centre":"Deens Academy, Whitefield","combined":{"overall":3.17,"n":6,"rubric":{"Communication":3.0,"Interesting class":2.33,"Interactive class":2.83,"Clear fundamentals":2.83,"Problem solving":3.83,"Resolves doubts":3.17,"Discipline":4.83,"Board workbook HW":4.5,"Module HW":4.83,"Motivates students":4.5,"Punctual":5.0,"Attendance":5.0,"Informs HW":3.67,"Discusses HW Qs":3.5,"Doubts before CCT":4.5,"CCTs on time":4.67}},"grades":{"12th":{"overall":3.17,"n":6,"rubric":{"Communication":3.0,"Interesting class":2.33,"Interactive class":2.83,"Clear fundamentals":2.83,"Problem solving":3.83,"Resolves doubts":3.17,"Discipline":4.83,"Board workbook HW":4.5,"Module HW":4.83,"Motivates students":4.5,"Punctual":5.0,"Attendance":5.0,"Informs HW":3.67,"Discusses HW Qs":3.5,"Doubts before CCT":4.5,"CCTs on time":4.67}}}}],"comments":{"all":[".","Vicky sir is the goat he's so cool and he teaches very well","Should conduct ccts timely","Haphazard in flowof teaching","Can clear ncert concepts first before moving to out of syllabus stuff","He is excellent at teaching","Gautum here have no fear be a dear cuz we are near and I love beer","Very informative and makes learning fun","random teaching but experienced teacher",".","Amazing teacher overall","Everything is good, no issues. I hope the same teacher continues","Sir is very enthusiastic and teaches well","Good teacher, class gets a bit slow sometimes but overall okay","Thx for correcting Avantika posture","Nothing","would like it if he sticked to the topic and gave better notes","Teaches a lot of things outside textbook","Very interactive in class","Teaching in syllabus","Informative","N","If we could complete ncert properly and then get extra information it would be great. And I need notes to study bio.","Gives too much information , topics jumbled and not conveyed properly","Teaches extremely good","🐐🐐🔥🔥","Bad","more ncert oriented discussions would be appreciated","Is not very structured while teaching, is a little random in doing topics","Classes are helpful"],"by_centre":{"TCIS, Haralur":{"11th":["Vicky sir is the goat he's so cool and he teaches very well","He is excellent at teaching","Very informative and makes learning fun","Amazing teacher overall","Everything is good, no issues. I hope the same teacher continues","Sir is very enthusiastic and teaches well","Good teacher, class gets a bit slow sometimes but overall okay","Thx for correcting Avantika posture","Nothing","would like it if he sticked to the topic and gave better notes","Teaches a lot of things outside textbook","Very interactive in class","Teaches extremely good","🐐🐐🔥🔥","Classes are helpful"],"12th":[".","Should conduct ccts timely","Haphazard in flowof teaching","Can clear ncert concepts first before moving to out of syllabus stuff","Gautum here have no fear be a dear cuz we are near and I love beer","random teaching but experienced teacher",".","Bad","more ncert oriented discussions would be appreciated","Is not very structured while teaching, is a little random in doing topics"],"all":[".","Vicky sir is the goat he's so cool and he teaches very well","Should conduct ccts timely","Haphazard in flowof teaching","Can clear ncert concepts first before moving to out of syllabus stuff","He is excellent at teaching","Gautum here have no fear be a dear cuz we are near and I love beer","Very informative and makes learning fun","random teaching but experienced teacher",".","Amazing teacher overall","Everything is good, no issues. I hope the same teacher continues","Sir is very enthusiastic and teaches well","Good teacher, class gets a bit slow sometimes but overall okay","Thx for correcting Avantika posture","Nothing","would like it if he sticked to the topic and gave better notes","Teaches a lot of things outside textbook","Very interactive in class","Teaches extremely good","🐐🐐🔥🔥","Bad","more ncert oriented discussions would be appreciated","Is not very structured while teaching, is a little random in doing topics","Classes are helpful"]},"Deens Academy, Whitefield":{"12th":["Teaching in syllabus","Informative","N","If we could complete ncert properly and then get extra information it would be great. And I need notes to study bio.","Gives too much information , topics jumbled and not conveyed properly"],"all":["Teaching in syllabus","Informative","N","If we could complete ncert properly and then get extra information it would be great. And I need notes to study bio.","Gives too much information , topics jumbled and not conveyed properly"]}}}}}};
+
+const RC = v=>v==null||isNaN(v)?'rx':v>=4.5?'re':v>=4?'rg':v>=3.5?'ra':v>=3?'rn':'rp';
+const RK = v=>v==null||isNaN(v)?'#ccc':v>=4.5?'#2e7d32':v>=4?'#7cb342':v>=3.5?'#fbc02d':v>=3?'#ef6c00':'#c62828';
+const FMT = v=>v==null||isNaN(v)?'—':v.toFixed(2);
+const BRAND = '#bf360c';
+const charts={};
+function kc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+// ── Nav ────────────────────────────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('page-'+id);
+  if(el) el.classList.add('active');
+  const btn=document.querySelector(`[onclick="showPage('${id}')"]`);
+  if(btn) btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Heatmap ────────────────────────────────────────────────────────────────
+function heatmap(id,rows,rowLbls,colLbls){
+  let h='<table class="ht"><thead><tr><th class="rh">Centre</th>';
+  colLbls.forEach(c=>h+=`<th class="ch">${c}</th>`);
+  h+='</tr></thead><tbody>';
+  rowLbls.forEach((row,ri)=>{
+    h+=`<tr><td>${row}</td>`;
+    colLbls.forEach((_,ci)=>{const v=rows[ri][ci];h+=`<td class="${RC(v)}">${FMT(v)}</td>`;});
+    h+='</tr>';
+  });
+  document.getElementById(id).innerHTML=h+'</tbody></table>';
+}
+
+// ── Consolidation table ────────────────────────────────────────────────────
+function buildSCTable(cid,schools,mode){
+  const RL=D.rubric_labels;
+  const hasData=schools.some(s=>mode==='combined'?s.combined:mode==='11th'?s.grades['11th']:s.grades['12th']);
+  if(!hasData){document.getElementById(cid).innerHTML='<div style="padding:22px;text-align:center;color:var(--muted)">No data for this grade.</div>';return;}
+  let h=`<table class="sc-table"><thead><tr>
+    <th style="min-width:155px;text-align:left">School</th>
+    <th>Grade</th><th>n</th><th>Overall</th>
+    ${RL.map(r=>`<th>${r}</th>`).join('')}
+  </tr></thead><tbody>`;
+  schools.forEach(s=>{
+    const rows2=[];
+    if((mode==='combined')&&s.combined) rows2.push({g:'All',n:s.combined.n,ov:s.combined.overall,rb:s.combined.rubric,cls:'cr',pill:'all'});
+    if((mode==='combined'||mode==='11th')&&s.grades['11th']) rows2.push({g:'11th',n:s.grades['11th'].n,ov:s.grades['11th'].overall,rb:s.grades['11th'].rubric,cls:'g11r',pill:'g11'});
+    if((mode==='combined'||mode==='12th')&&s.grades['12th']) rows2.push({g:'12th',n:s.grades['12th'].n,ov:s.grades['12th'].overall,rb:s.grades['12th'].rubric,cls:'g12r',pill:'g12'});
+    if(!rows2.length) return;
+    rows2.forEach((r,ri)=>{
+      const pct=r.ov?Math.round((r.ov/5)*100):0;
+      const bc=RK(r.ov);
+      h+=`<tr class="${r.cls}">`;
+      if(ri===0) h+=`<td class="cc" rowspan="${rows2.length}">${s.centre}</td>`;
+      h+=`<td><span class="gp ${r.pill}">${r.g}</span></td>`;
+      h+=`<td class="nc">${r.n}</td>`;
+      h+=`<td><div class="mbw"><span class="rval ${RC(r.ov)}">${FMT(r.ov)}</span>
+        <div class="mbt"><div class="mbf" style="width:${pct}%;background:${bc}"></div></div></div></td>`;
+      RL.forEach(q=>{const v=r.rb[q];h+=`<td class="${RC(v)}">${FMT(v)}</td>`;});
+      h+='</tr>';
+    });
+  });
+  document.getElementById(cid).innerHTML=h+'</tbody></table>';
+}
+function switchTab(mode,btn){
+  document.querySelectorAll('#sc-tabs .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tabp').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sct-'+mode).classList.add('active');
+}
+
+// ── Cover ──────────────────────────────────────────────────────────────────
+function buildCover(){
+  const m=D.meta;
+  document.getElementById('cov-stats').innerHTML=[
+    {n:m.total_responses.toLocaleString(),l:'Student Responses'},
+    {n:m.total_teachers,l:'Teachers'},
+    {n:m.total_centres,l:'Centres'},
+    {n:m.total_comments.toLocaleString(),l:'Comments'},
+    {n:D.subjects.length,l:'Subjects'},
+    {n:m.grade11_n+' / '+m.grade12_n,l:'11th / 12th'},
+  ].map(x=>`<div class="cov-stat"><div class="csn">${x.n}</div><div class="csl">${x.l}</div></div>`).join('');
+  document.getElementById('g11n').textContent=m.grade11_n.toLocaleString()+' responses';
+  document.getElementById('g12n').textContent=m.grade12_n.toLocaleString()+' responses';
+}
+
+// ── Overview ───────────────────────────────────────────────────────────────
+function buildOverview(){
+  const m=D.meta;
+  const ss=D.subj_summary;
+  document.getElementById('ov-kpis').innerHTML=[
+    {l:'Total Responses',v:m.total_responses.toLocaleString(),c:''},
+    {l:'Teachers',v:m.total_teachers,c:'ac'},
+    {l:'Centres',v:m.total_centres,c:''},
+    {l:'Grade 11 Evals',v:m.grade11_n.toLocaleString(),c:'g11'},
+    {l:'Grade 12 Evals',v:m.grade12_n.toLocaleString(),c:'g12'},
+    {l:'Total Comments',v:m.total_comments.toLocaleString(),c:'ac'},
+  ].map(k=>`<div class="kcard ${k.c}"><div class="kl">${k.l}</div><div class="kv">${k.v}</div></div>`).join('');
+
+  // Centre x subject heatmap
+  const rows=D.centres.map(c=>D.subjects.map(s=>D.centre_subj_heat[c]?.[s]));
+  heatmap('ov-hm',rows,D.centres,D.subjects);
+
+  // Subject comparison chart (if multi-subject)
+  if(document.getElementById('ch-subj-comp')){
+    kc('ch-subj-comp');
+    const ctx=document.getElementById('ch-subj-comp').getContext('2d');
+    charts['ch-subj-comp']=new Chart(ctx,{type:'bar',
+      data:{labels:D.subjects,
+        datasets:[
+          {label:'11th',data:D.subjects.map(s=>ss[s]?.grade?.['11th']?.avg),backgroundColor:'#1a3a6c',borderRadius:4},
+          {label:'12th',data:D.subjects.map(s=>ss[s]?.grade?.['12th']?.avg),backgroundColor:'#e8a317',borderRadius:4},
+        ]},
+      options:{plugins:{legend:{labels:{font:{size:11}}}},
+        scales:{y:{min:2.5,max:5.2,grid:{color:'#eee'},ticks:{font:{size:11}}},
+                 x:{grid:{display:false},ticks:{font:{size:11}}}},maintainAspectRatio:false}});
+  }
+
+  // Teacher ranking table
+  const allT=Object.values(D.teachers).sort((a,b)=>(b.overall_avg||0)-(a.overall_avg||0));
+  let rows2='';
+  allT.forEach((td,i)=>{
+    const g11=td.grade_avgs?.['11th'],g12=td.grade_avgs?.['12th'];
+    rows2+=`<tr>
+      <td class="rank">#${i+1}</td>
+      <td class="tname" onclick="showT('${(td.subject+'||'+td.teacher).replace(/'/g,"\\'")}')">${td.teacher}</td>
+      <td><span class="subpill">${td.subject}</span></td>
+      <td class="${RC(td.overall_avg)}">${FMT(td.overall_avg)}</td>
+      <td class="nc">${td.n}</td>
+      <td class="${RC(g11)}">${FMT(g11)}</td>
+      <td class="${RC(g12)}">${FMT(g12)}</td>
+    </tr>`;
+  });
+  document.getElementById('ov-rank').innerHTML=`
+    <table class="rank-table"><thead><tr>
+      <th>#</th><th>Teacher</th><th>Subject</th><th>Overall</th><th>n</th><th>11th</th><th>12th</th>
+    </tr></thead><tbody>${rows2}</tbody></table>`;
+}
+
+// ── Grade summary ──────────────────────────────────────────────────────────
+function buildGrade(){
+  const m=D.meta;
+  document.getElementById('g11-badge').textContent=m.grade11_n+' resp';
+  document.getElementById('g12-badge').textContent=m.grade12_n+' resp';
+  ['11th','12th'].forEach(cls=>{
+    const rows=D.centres.map(c=>[D.grade_heat[cls][c]]);
+    heatmap('g'+cls.replace('th','')+'-hm',rows,D.centres,['Avg Rating']);
+  });
+  kc('ch-grade-ctr');
+  const ctx=document.getElementById('ch-grade-ctr').getContext('2d');
+  charts['ch-grade-ctr']=new Chart(ctx,{type:'bar',
+    data:{labels:D.centres,datasets:[
+      {label:'11th',data:D.centres.map(c=>D.grade_heat['11th'][c]),backgroundColor:'#1a3a6c',borderRadius:4},
+      {label:'12th',data:D.centres.map(c=>D.grade_heat['12th'][c]),backgroundColor:'#e8a317',borderRadius:4},
+    ]},
+    options:{plugins:{legend:{labels:{font:{size:11}}}},
+      scales:{y:{min:2.5,max:5.2,grid:{color:'#eee'}},
+               x:{grid:{display:false},ticks:{font:{size:10},maxRotation:30}}},maintainAspectRatio:false}});
+}
+
+// ── Subject pages ──────────────────────────────────────────────────────────
+function buildSubjCharts(){
+  D.subjects.forEach(s=>{
+    const sid=s.replace(/\s/g,'_');
+    const canvas=document.getElementById('ch-'+sid);
+    if(!canvas) return;
+    const s_teachers=Object.values(D.teachers).filter(t=>t.subject===s)
+      .sort((a,b)=>(a.overall_avg||0)-(b.overall_avg||0));
+    kc('ch-'+sid);
+    const ctx=canvas.getContext('2d');
+    charts['ch-'+sid]=new Chart(ctx,{type:'bar',
+      data:{labels:s_teachers.map(t=>t.teacher),datasets:[
+        {label:'11th',data:s_teachers.map(t=>t.grade_avgs?.['11th']||null),
+          backgroundColor:'#1a3a6c',borderRadius:4,barThickness:14},
+        {label:'12th',data:s_teachers.map(t=>t.grade_avgs?.['12th']||null),
+          backgroundColor:'#e8a317',borderRadius:4,barThickness:14},
+      ]},
+      options:{indexAxis:'y',
+        plugins:{legend:{labels:{font:{size:11}}},
+          tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw?.toFixed(2)||'No data'}`}}},
+        scales:{x:{min:0,max:5.3,grid:{color:'#eee'},ticks:{font:{size:10}}},
+                 y:{grid:{display:false},ticks:{font:{size:11}}}},
+        maintainAspectRatio:false,
+        onClick:(e,els)=>{ if(els.length) showT(s+'||'+s_teachers[els[0].index].teacher); }
+      }});
+  });
+}
+
+// ── Teacher list ───────────────────────────────────────────────────────────
+function buildFilters(){
+  const cs=document.getElementById('f-centre');
+  D.centres.forEach(c=>cs.add(new Option(c,c)));
+}
+function renderTL(){
+  const fs=document.getElementById('f-subj')?.value||'';
+  const fg=document.getElementById('f-grade')?.value||'';
+  const fc=document.getElementById('f-centre')?.value||'';
+  const fq=document.getElementById('f-q')?.value.toLowerCase()||'';
+  const all=Object.values(D.teachers);
+  const filtered=all.filter(td=>{
+    if(fs&&td.subject!==fs) return false;
+    if(fg&&!td.grades_present.includes(fg)) return false;
+    if(fc&&!td.centres.includes(fc)) return false;
+    if(fq&&!td.teacher.toLowerCase().includes(fq)) return false;
+    return true;
+  }).sort((a,b)=>(b.overall_avg||0)-(a.overall_avg||0));
+  const list=document.getElementById('tlist');
+  if(!filtered.length){list.innerHTML='<div style="text-align:center;color:var(--muted);padding:32px">No teachers match.</div>';return;}
+  list.innerHTML=filtered.map(td=>{
+    const v=td.overall_avg,bg=RK(v),fg2=(v>=4||v<3)?'#fff':'#333';
+    const subjTag=D.subjects.length>1?`<span class="subpill" style="font-size:.65rem">${td.subject}</span> `:'';
+    return `<div class="tc" onclick="showT('${(td.subject+'||'+td.teacher).replace(/'/g,"\\'")}')" >
+      <div><div class="tcn">${subjTag}${td.teacher}</div>
+        <div class="tcs">${td.subject} · ${td.centres.length} centre(s) · n=${td.n}</div></div>
+      <span class="tcb" style="background:${bg};color:${fg2}">${FMT(v)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Comments ───────────────────────────────────────────────────────────────
+let _cmKey='';
+function renderCM(){
+  const data=D.teachers[_cmKey]?.comments;
+  if(!data){document.getElementById('cmlist').innerHTML='<div class="no-cm">No comments.</div>';return;}
+  const cFilter=document.getElementById('cm-ctr').value;
+  const gFilter=document.getElementById('cm-gr').value;
+  let items=[];
+  Object.entries(data.by_centre||{}).forEach(([centre,cd])=>{
+    ['11th','12th'].forEach(grade=>{
+      (cd[grade]||[]).forEach(txt=>{
+        if((!cFilter||cFilter===centre)&&(!gFilter||gFilter===grade))
+          items.push({centre,grade,txt});
+      });
+    });
+  });
+  document.getElementById('cm-count').textContent=items.length+' comment'+(items.length!==1?'s':'')+' shown';
+  if(!items.length){document.getElementById('cmlist').innerHTML='<div class="no-cm">No comments match filters.</div>';return;}
+  const subjLabel=D.teachers[_cmKey]?.subject||'';
+  document.getElementById('cmlist').innerHTML=items.map(it=>`
+    <div class="cmc">
+      <div class="cmm">
+        <span class="cmc-ctr">${it.centre}</span>
+        <span class="cmc-grade ${it.grade==='11th'?'g11':'g12'}">${it.grade}</span>
+        ${D.subjects.length>1?`<span class="cmc-subj">${subjLabel}</span>`:''}
+      </div>
+      <div class="cmt">${it.txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    </div>`).join('');
+}
+function loadCM(key,centres){
+  _cmKey=key;
+  const data=D.teachers[key]?.comments;
+  const total=(data?.all||[]).length;
+  const g11n=Object.values(data?.by_centre||{}).reduce((a,c)=>a+(c['11th']||[]).length,0);
+  const g12n=Object.values(data?.by_centre||{}).reduce((a,c)=>a+(c['12th']||[]).length,0);
+  document.getElementById('cm-sum').innerHTML=[
+    {n:total,l:'Total'},{n:g11n,l:'Grade 11th'},{n:g12n,l:'Grade 12th'},
+    {n:Object.keys(data?.by_centre||{}).length,l:'Centres'},
+  ].map(x=>`<div class="cmsn"><div class="csnn">${x.n}</div><div class="csnl">${x.l}</div></div>`).join('');
+  const sel=document.getElementById('cm-ctr');
+  sel.innerHTML='<option value="">All Centres</option>';
+  centres.forEach(c=>sel.add(new Option(c,c)));
+  document.getElementById('cm-gr').value='';
+  renderCM();
+}
+
+// ── Teacher detail ─────────────────────────────────────────────────────────
+function showT(key){
+  const td=D.teachers[key];
+  if(!td) return;
+  document.getElementById('td-ey').textContent=td.subject;
+  document.getElementById('td-name').textContent=td.teacher;
+  document.getElementById('td-sub').textContent=
+    `${td.n} responses · ${td.n_centres} centre(s) · ${td.grades_present.join(' & ')}`;
+  document.getElementById('td-chips').innerHTML=[
+    `<span class="chip subj">${td.subject}</span>`,
+    ...td.grades_present.map(g=>`<span class="chip">${g}</span>`),
+    ...td.centres.map(c=>`<span class="chip">${c}</span>`)
+  ].join('');
+  const kpis=[
+    {l:'Overall Avg',v:FMT(td.overall_avg),c:'ac'},
+    {l:'Rubric Avg',v:FMT(td.rubric_avg),c:''},
+    ...td.grades_present.map(g=>{return {l:`Grade ${g}`,v:FMT(td.grade_avgs[g]),c:g==='11th'?'g11':'g12'};}),
+    {l:'Strongest ▲',v:`${td.strongest} (${FMT(td.strongest_val)})`,c:'gd'},
+    {l:'Weakest ▼',  v:`${td.weakest} (${FMT(td.weakest_val)})`,  c:'bd'},
+  ];
+  document.getElementById('td-kpis').innerHTML=kpis.map(k=>
+    `<div class="km ${k.c}"><div class="ml">${k.l}</div><div class="mv">${k.v}</div></div>`).join('');
+
+  const hasBoth=td.grades_present.length===2;
+  document.getElementById('td-cl').innerHTML=hasBoth?`
+    <div class="li"><div class="ld" style="background:var(--g11)"></div>11th</div>
+    <div class="li"><div class="ld" style="background:var(--g12)"></div>12th</div>`:'';
+  const cH=Math.max(150,td.centres.length*(hasBoth?52:36));
+  document.getElementById('td-cwrap').style.height=cH+'px';
+  kc('ch-td-c');
+  const ctxC=document.getElementById('ch-td-c').getContext('2d');
+  const c11=td.centres.map(c=>td.centre_data[c]?.['11th']?.avg||null);
+  const c12=td.centres.map(c=>td.centre_data[c]?.['12th']?.avg||null);
+  charts['ch-td-c']=new Chart(ctxC,{type:'bar',
+    data:{labels:td.centres,datasets:hasBoth?[
+      {label:'11th',data:c11,backgroundColor:'#1a3a6c',borderRadius:4,barThickness:14},
+      {label:'12th',data:c12,backgroundColor:'#e8a317',borderRadius:4,barThickness:14},
+    ]:[{label:'Rating',data:c11.map((v,i)=>v||c12[i]),
+        backgroundColor:td.centres.map(c=>{const v=td.centre_data[c]?.[td.grades_present[0]]?.avg;return RK(v);})
+        ,borderRadius:4,barThickness:20}]},
+    options:{indexAxis:'y',
+      plugins:{legend:{display:hasBoth,labels:{font:{size:11}}},
+        tooltip:{callbacks:{label:c=>{if(!c.raw)return 'No data';
+          const g=c.dataset.label==='12th'?'12th':'11th';
+          const n=td.centre_data[c.label]?.[g]?.n||'';
+          return `${c.dataset.label}: ${c.raw.toFixed(2)} (n=${n})`;}}}},
+      scales:{x:{min:0,max:5.4,grid:{color:'#eee'},ticks:{font:{size:10}}},
+               y:{grid:{display:false},ticks:{font:{size:11}}}},maintainAspectRatio:false}});
+
+  const rubricSorted=Object.entries(td.rubric_overall).sort((a,b)=>a[1]-b[1]);
+  const rH=Math.max(280,rubricSorted.length*(hasBoth?46:30));
+  document.getElementById('td-rwrap').style.height=rH+'px';
+  document.getElementById('td-rl').innerHTML=hasBoth?`
+    <div class="li"><div class="ld" style="background:var(--g11)"></div>11th</div>
+    <div class="li"><div class="ld" style="background:var(--g12)"></div>12th</div>`:'';
+  kc('ch-td-r');
+  const ctxR=document.getElementById('ch-td-r').getContext('2d');
+  const rLbls=rubricSorted.map(([r])=>r);
+  charts['ch-td-r']=new Chart(ctxR,{type:'bar',
+    data:{labels:rLbls,datasets:hasBoth?[
+      {label:'11th',data:rLbls.map(r=>td.rubric_grade?.['11th']?.[r]||null),backgroundColor:'#1a3a6c',borderRadius:3,barThickness:12},
+      {label:'12th',data:rLbls.map(r=>td.rubric_grade?.['12th']?.[r]||null),backgroundColor:'#e8a317',borderRadius:3,barThickness:12},
+    ]:[{label:'Rating',data:rubricSorted.map(([,v])=>v),
+        backgroundColor:rubricSorted.map(([,v])=>RK(v)),borderRadius:3,barThickness:18}]},
+    options:{indexAxis:'y',
+      plugins:{legend:{display:hasBoth,labels:{font:{size:11}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw?.toFixed(2)||'No data'}`}}},
+      scales:{x:{min:0,max:5.4,grid:{color:'#eee'},ticks:{font:{size:10}}},
+               y:{grid:{display:false},ticks:{font:{size:10}}}},maintainAspectRatio:false}});
+
+  const rRows=td.centres.map(c=>D.rubric_labels.map(r=>td.rubric_heatmap[c]?.[r]??null));
+  heatmap('td-hm',rRows,td.centres,D.rubric_labels);
+
+  ['combined','11th','12th'].forEach(mode=>buildSCTable('sc-'+mode,td.school_cons,mode));
+  document.querySelectorAll('#sc-tabs .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tabp').forEach(t=>t.classList.remove('active'));
+  document.querySelector('#sc-tabs .tab').classList.add('active');
+  document.getElementById('sct-combined').classList.add('active');
+
+  loadCM(key,td.centres);
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-td').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+buildCover();
+buildOverview();
+buildGrade();
+buildFilters();
+renderTL();
+buildSubjCharts();
+</script>
+</body>
+</html>
